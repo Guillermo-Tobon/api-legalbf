@@ -44,8 +44,8 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
                 const password = bcrypt.hashSync(req.body.password, salt);
                 const query = `
         INSERT INTO usuarios 
-        (nombres_us, apellidos_us, email_us, password_us, telefono_us, fecha_reg_us, estado_us, admin_us)
-        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', CURRENT_TIMESTAMP(), 1, 'N' )`;
+        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, fecha_reg_us, estado_us, admin_us)
+        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', CURRENT_TIMESTAMP(), 1, 'N' )`;
                 mysql_1.default.ejecutarQuery(query, (err, result) => {
                     if (err) {
                         return res.status(400).send({
@@ -203,13 +203,24 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
 /*********** MÉTODOS GET ************/
 /*******************************************************************************************/
 /**
+ * Método GET para validar en token de seguridad
+ */
+router.get('/api/loginrenew', middleware.validarJWT, (req, res) => {
+    const token = req.header('x-token');
+    return res.status(200).send({
+        ok: true,
+        msg: 'Usuario valido.',
+        token
+    });
+});
+/**
  *Método GET que obtiene todos los usuarios administradores
  */
 router.get('/api/usuarios', middleware.validarJWT, (req, res) => {
     const query = `SELECT * FROM usuarios`;
     mysql_1.default.ejecutarQuery(query, (err, usuarios) => {
         if (err) {
-            res.status(400).send({
+            return res.status(400).send({
                 ok: false,
                 error: err
             });

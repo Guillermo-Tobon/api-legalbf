@@ -41,8 +41,8 @@ router.post('/api/insertUsuario', async(req: Request, res: Response ) =>{
         
         const query = `
         INSERT INTO usuarios 
-        (nombres_us, apellidos_us, email_us, password_us, telefono_us, fecha_reg_us, estado_us, admin_us)
-        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', CURRENT_TIMESTAMP(), 1, 'N' )`;
+        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, fecha_reg_us, estado_us, admin_us)
+        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', CURRENT_TIMESTAMP(), 1, 'N' )`;
         
         MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
           if ( err ) {
@@ -254,6 +254,24 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 /*******************************************************************************************/
 
 /**
+ * Método GET para validar en token de seguridad
+ */
+router.get('/api/loginrenew', middleware.validarJWT, ( req: Request, res: Response  ) =>{
+
+  const token = req.header( 'x-token' );
+
+  return res.status(200).send({
+    ok: true,
+    msg: 'Usuario valido.',
+    token
+  })
+
+});
+
+
+
+
+/**
  *Método GET que obtiene todos los usuarios administradores
  */
 router.get('/api/usuarios', middleware.validarJWT, ( req: Request, res: Response ) =>{
@@ -262,7 +280,7 @@ router.get('/api/usuarios', middleware.validarJWT, ( req: Request, res: Response
 
   MySQL.ejecutarQuery( query, (err:any, usuarios: Object[]) =>{
     if ( err ) {
-      res.status(400).send({
+      return res.status(400).send({
         ok: false,
         error: err
       });
