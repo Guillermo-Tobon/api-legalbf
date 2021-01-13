@@ -106,7 +106,7 @@ router.post('/api/loginUser', (req, res) => {
                 }
                 else {
                     //Generar un token - JWT
-                    const token = yield jwt.generarJWT(result[0].id, result[0].email);
+                    const token = yield jwt.generarJWT(result[0].id_us, result[0].email_us);
                     return res.status(200).send({
                         ok: true,
                         err,
@@ -207,17 +207,32 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
  */
 router.get('/api/loginrenew', middleware.validarJWT, (req, res) => {
     const token = req.header('x-token');
-    return res.status(200).send({
-        ok: true,
-        msg: 'Usuario valido.',
-        token
+    const query = `
+                SELECT * 
+                FROM usuarios 
+                WHERE id_us = ${middleware.user.id} AND email_us = '${middleware.user.email}'`;
+    mysql_1.default.ejecutarQuery(query, (err, usuario) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                error: err
+            });
+        }
+        else {
+            return res.status(200).send({
+                ok: true,
+                msg: 'Usuario valido.',
+                token,
+                usuario
+            });
+        }
     });
 });
 /**
  *Método GET que obtiene todos los usuarios administradores
  */
 router.get('/api/usuarios', middleware.validarJWT, (req, res) => {
-    const query = `SELECT * FROM usuarios`;
+    const query = `SELECT * FROM usuarios WHERE id_us NOT IN (1)`;
     mysql_1.default.ejecutarQuery(query, (err, usuarios) => {
         if (err) {
             return res.status(400).send({
