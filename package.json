@@ -15,7 +15,8 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mysql": "github:mysqljs/mysql",
-    "node-cron": "^2.0.3"
+    "node-cron": "^2.0.3",
+    "nodemailer": "^6.4.17"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -23,6 +24,7 @@
     "@types/express": "^4.17.9",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mysql": "^2.15.17",
-    "@types/node-cron": "^2.0.3"
+    "@types/node-cron": "^2.0.3",
+    "@types/nodemailer": "^6.4.0"
   }
 }

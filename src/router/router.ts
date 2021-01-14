@@ -6,10 +6,12 @@ import MySQL from '../mysql/mysql';
 import RouterValida from './router.validators';
 import JsonWebToken from '../helpers/jwt';
 import MiddlewareJWT from '../middlewares/validar-jwt';
+import NodeMailer from '../nodemailer/config-nodemailer';
 
 const routValida = new RouterValida();
 const jwt = new JsonWebToken();
 const middleware = new MiddlewareJWT();
+const nodemailer = new NodeMailer();
 
 const router = Router();
 
@@ -41,15 +43,15 @@ router.post('/api/insertUsuario', async(req: Request, res: Response ) =>{
         
         const query = `
         INSERT INTO usuarios 
-        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, fecha_reg_us, estado_us, admin_us)
-        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', CURRENT_TIMESTAMP(), 1, 'N' )`;
+        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, descripcion_us, fecha_reg_us, estado_us, admin_us)
+        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', '${req.body.descripcion}', CURRENT_TIMESTAMP(), 1, 'N' )`;
         
         MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
           if ( err ) {
             return res.status(400).send({
               ok: false,
               error: err,
-              query
+              query 
             });
             
           } 
@@ -117,6 +119,14 @@ router.post('/api/loginUser', (req: Request, res: Response ) =>{
             msg: 'E-mail y/o password son incorrectos.'
           })
   
+        } else if( result[0].estado_us === 0 ){
+
+          return res.status(400).send({
+            ok: false,
+            err: 'Acceso denegado.',
+            msg: 'Su cuenta esta bloqueada. comuníquese con el administrador.'
+          })
+          
         } else {
 
           //Generar un token - JWT
@@ -128,6 +138,7 @@ router.post('/api/loginUser', (req: Request, res: Response ) =>{
             msg: 'Login correcto!',
             token
           })
+
         }
       }
   
@@ -202,17 +213,15 @@ router.post('/api/insertCliente', middleware.validarJWT, async(req: Request, res
 
 
 
-
-
 /**
  * Método POST para actualizar cliente por id
  */
 router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Response ) =>{
   
   const query = `
-                UPDATE informacion_clientes
-                SET nombres_cli = '${req.body.nombres}', apellidos_cli = '${req.body.apellidos}', email_cli = '${req.body.email}', telefono_cli = '${req.body.telefono}', compania_cli = '${req.body.compania}', estado_cli = ${req.body.estado}
-                WHERE id_cli = ${req.body.id} `;
+                UPDATE usuarios
+                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
+                WHERE id_us = ${req.body.id} `;
 
   MySQL.ejecutarQuery( query, (err:any, result:any) =>{
     
@@ -246,6 +255,11 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 });
 
 
+
+router.get('/api/email', (req: Request, res: Response ) =>{
+
+  nodemailer.SendMailer(req, res);
+})
 
 
 

@@ -19,9 +19,11 @@ const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router_validators_1 = __importDefault(require("./router.validators"));
 const jwt_1 = __importDefault(require("../helpers/jwt"));
 const validar_jwt_1 = __importDefault(require("../middlewares/validar-jwt"));
+const config_nodemailer_1 = __importDefault(require("../nodemailer/config-nodemailer"));
 const routValida = new router_validators_1.default();
 const jwt = new jwt_1.default();
 const middleware = new validar_jwt_1.default();
+const nodemailer = new config_nodemailer_1.default();
 const router = express_1.Router();
 /*******************************************************************************************/
 /*********** MÉTODOS POST ************/
@@ -44,8 +46,8 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
                 const password = bcrypt.hashSync(req.body.password, salt);
                 const query = `
         INSERT INTO usuarios 
-        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, fecha_reg_us, estado_us, admin_us)
-        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', CURRENT_TIMESTAMP(), 1, 'N' )`;
+        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, descripcion_us, fecha_reg_us, estado_us, admin_us)
+        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', '${req.body.descripcion}', CURRENT_TIMESTAMP(), 1, 'N' )`;
                 mysql_1.default.ejecutarQuery(query, (err, result) => {
                     if (err) {
                         return res.status(400).send({
@@ -102,6 +104,13 @@ router.post('/api/loginUser', (req, res) => {
                         ok: false,
                         err: 'Password incorrecto.',
                         msg: 'E-mail y/o password son incorrectos.'
+                    });
+                }
+                else if (result[0].estado_us === 0) {
+                    return res.status(400).send({
+                        ok: false,
+                        err: 'Acceso denegado.',
+                        msg: 'Su cuenta esta bloqueada. comuníquese con el administrador.'
                     });
                 }
                 else {
@@ -173,9 +182,9 @@ router.post('/api/insertCliente', middleware.validarJWT, (req, res) => __awaiter
  */
 router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
     const query = `
-                UPDATE informacion_clientes
-                SET nombres_cli = '${req.body.nombres}', apellidos_cli = '${req.body.apellidos}', email_cli = '${req.body.email}', telefono_cli = '${req.body.telefono}', compania_cli = '${req.body.compania}', estado_cli = ${req.body.estado}
-                WHERE id_cli = ${req.body.id} `;
+                UPDATE usuarios
+                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
+                WHERE id_us = ${req.body.id} `;
     mysql_1.default.ejecutarQuery(query, (err, result) => {
         if (err) {
             return res.status(400).send({
@@ -198,6 +207,9 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
             });
         }
     });
+});
+router.get('/api/email', (req, res) => {
+    nodemailer.SendMailer(req, res);
 });
 /*******************************************************************************************/
 /*********** MÉTODOS GET ************/
