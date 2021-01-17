@@ -26,10 +26,10 @@ export default class NodeMailer{
           subject: `${this.dataInfo.asunto} ✔`, 
           html: `<b>${this.dataInfo.asunto}</b>
                  <p>Señor(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
-                 <p>${this.dataInfo.descripcion}</p>`,
+                 ${this.dataInfo.descripcion}`,
       };
     
-    transporter.sendMail( mailOptions, (err, info) =>{
+    transporter.sendMail( mailOptions, (err:any, info:any) =>{
       if (err) {
 
         return res.status(400).send({
