@@ -2,26 +2,31 @@ import nodemailer = require('nodemailer');
 
 export default class NodeMailer{
 
-  constructor(){}
+  public dataInfo:any;
 
-  public SendMailer =  async(req?:any, res?:any, data?:any ) => {
+  constructor( data:any ){
+    this.dataInfo = data;
+  }
+
+  public SendMailer = (req?:any, res?:any) => {
 
     const transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
           auth: {
-              user: 'santina.white@ethereal.email',
-              pass: 'SHzGCxVxAXtNk5eP5a'
+              user: 'desarrollomemo@gmail.com',
+              pass: 'abawmliitfhovslp'
           }
       });
 
     const mailOptions = {
           from: '"LegalBF" <info@legalbf.com>',
-          to: "gtobonbarco@gmail.com", // list of receivers
-          subject: "Hello ✔", // Subject line
-          text: "Hello world?", // plain text body
-          html: "<b>Hello world?</b>", // html body
+          to: `${this.dataInfo.email}`, 
+          subject: `${this.dataInfo.asunto} ✔`, 
+          html: `<b>${this.dataInfo.asunto}</b>
+                 <p>Señor(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
+                 <p>${this.dataInfo.descripcion}</p>`,
       };
     
     transporter.sendMail( mailOptions, (err, info) =>{
@@ -29,13 +34,13 @@ export default class NodeMailer{
 
         return res.status(400).send({
           ok: false,
-          msg: 'No se pudo enviar el correo',
+          msg: 'Se modificó el cliente pero no se pudo enviar el correo electrónico.',
           error: err.message
         })
         
       } else {
 
-        return res.status(400).send({
+        return res.status(200).send({
           ok: true,
           msg: 'Correo enviado'
         })

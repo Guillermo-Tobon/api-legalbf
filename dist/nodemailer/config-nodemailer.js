@@ -1,50 +1,43 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer = require("nodemailer");
 class NodeMailer {
-    constructor() {
-        this.SendMailer = (req, res, data) => __awaiter(this, void 0, void 0, function* () {
+    constructor(data) {
+        this.SendMailer = (req, res) => {
             const transporter = nodemailer.createTransport({
-                host: 'smtp.ethereal.email',
-                port: 587,
-                secure: false,
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
                 auth: {
-                    user: 'santina.white@ethereal.email',
-                    pass: 'SHzGCxVxAXtNk5eP5a'
+                    user: 'desarrollomemo@gmail.com',
+                    pass: 'abawmliitfhovslp'
                 }
             });
             const mailOptions = {
                 from: '"LegalBF" <info@legalbf.com>',
-                to: "gtobonbarco@gmail.com",
-                subject: "Hello ✔",
-                text: "Hello world?",
-                html: "<b>Hello world?</b>",
+                to: `${this.dataInfo.email}`,
+                subject: `${this.dataInfo.asunto} ✔`,
+                html: `<b>${this.dataInfo.asunto}</b>
+                 <p>Señor(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
+                 <p>${this.dataInfo.descripcion}</p>`,
             };
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     return res.status(400).send({
                         ok: false,
-                        msg: 'No se pudo enviar el correo',
+                        msg: 'Se modificó el cliente pero no se pudo enviar el correo electrónico.',
                         error: err.message
                     });
                 }
                 else {
-                    return res.status(400).send({
+                    return res.status(200).send({
                         ok: true,
                         msg: 'Correo enviado'
                     });
                 }
             });
-        });
+        };
+        this.dataInfo = data;
     }
 }
 exports.default = NodeMailer;

@@ -23,7 +23,6 @@ const config_nodemailer_1 = __importDefault(require("../nodemailer/config-nodema
 const routValida = new router_validators_1.default();
 const jwt = new jwt_1.default();
 const middleware = new validar_jwt_1.default();
-const nodemailer = new config_nodemailer_1.default();
 const router = express_1.Router();
 /*******************************************************************************************/
 /*********** MÉTODOS POST ************/
@@ -178,6 +177,13 @@ router.post('/api/insertCliente', middleware.validarJWT, (req, res) => __awaiter
     });
 }));
 /**
+ * Método POST para enviar correos
+ */
+router.post('/api/email', middleware.validarJWT, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const nodemailer = new config_nodemailer_1.default(req.body);
+    yield nodemailer.SendMailer(req, res);
+}));
+/**
  * Método POST para actualizar cliente por id
  */
 router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
@@ -207,9 +213,6 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
             });
         }
     });
-});
-router.get('/api/email', (req, res) => {
-    nodemailer.SendMailer(req, res);
 });
 /*******************************************************************************************/
 /*********** MÉTODOS GET ************/

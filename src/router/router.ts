@@ -11,7 +11,6 @@ import NodeMailer from '../nodemailer/config-nodemailer';
 const routValida = new RouterValida();
 const jwt = new JsonWebToken();
 const middleware = new MiddlewareJWT();
-const nodemailer = new NodeMailer();
 
 const router = Router();
 
@@ -212,6 +211,17 @@ router.post('/api/insertCliente', middleware.validarJWT, async(req: Request, res
 
 
 
+/**
+ * Método POST para enviar correos
+ */
+router.post('/api/email', middleware.validarJWT, async(req: Request, res: Response ) =>{
+  
+  const nodemailer = new NodeMailer(req.body);
+   await nodemailer.SendMailer(req, res);
+
+});
+
+
 
 /**
  * Método POST para actualizar cliente por id
@@ -255,11 +265,6 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 });
 
 
-
-router.get('/api/email', (req: Request, res: Response ) =>{
-
-  nodemailer.SendMailer(req, res);
-})
 
 
 
