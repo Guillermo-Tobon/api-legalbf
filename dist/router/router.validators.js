@@ -18,6 +18,7 @@ class RouterValida {
         //Atributos
         this.dataUser = [];
         this.dataClient = [];
+        this.dataTicket = [];
         //Método para validar usuario
         this.validarUsuario = (email, callback) => __awaiter(this, void 0, void 0, function* () {
             const query = `SELECT * FROM usuarios WHERE email_us = '${email}'`;
@@ -44,6 +45,19 @@ class RouterValida {
                 }
             });
         });
+        //Método para validar cliente
+        this.validarTicket = (email, callback) => {
+            const query = `SELECT * FROM tickets_clientes WHERE email_tic = '${email}' AND estado_tic = 0`;
+            mysql_1.default.ejecutarQuery(query, (err, result) => {
+                this.dataTicket = result;
+                if (err) {
+                    callback(err, null);
+                }
+                else {
+                    callback(null, result);
+                }
+            });
+        };
     }
 }
 exports.default = RouterValida;

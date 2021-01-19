@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import cron = require('node-cron');
 import bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 import MySQL from '../mysql/mysql';
 import RouterValida from './router.validators';
@@ -208,6 +209,66 @@ router.post('/api/insertCliente', middleware.validarJWT, async(req: Request, res
   });
  
 });
+
+
+
+
+/**
+ * Método POST para insertar ticket nuevos
+ */
+router.post('/api/crearticket', middleware.validarJWT, async(req: Request, res: Response ) =>{
+  
+  //Primero consultamos si existe el ticket pendiente
+  routValida.validarTicket(req.body.email, (err: any, data: any) => {
+
+    if (data) {
+      return res.status(400).send({
+        ok: false,
+        msg: `Tiene un ticket ( ${data[0].id_tic} ) pendiente de contestar. comuníquese con el administrador.`,
+        data
+      });
+    }
+
+    if (err) {
+      if (err == 'No hay registros.') {
+
+        let idTicket = uuidv4();
+        idTicket = idTicket.split('-');
+        const query = `
+            INSERT INTO tickets_clientes
+            (id_tic, id_cliente_tic, nombre_tic, email_tic, telefono_tic, compania_tic, asunto_tic, mensaje_tic,  estado_tic, fechareg_tic )
+            VALUES ( '${idTicket[0]}', ${req.body.id}, '${req.body.nombrecompleto}', '${req.body.email}', '${req.body.telefono}', '${req.body.compania}', '${req.body.asunto}', '${req.body.descripcion}', 0, CURRENT_TIMESTAMP() )`;
+
+        MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
+          if (err) {
+            return res.status(400).send({
+              ok: false,
+              msg: 'Problema al crear el ticket.',
+              err: query
+            });
+
+          }
+          res.status(200).send({
+            ok: true,
+            msg: 'Ticket creado con éxito.',
+            idticket: idTicket[0]
+          });
+
+        });
+
+      } else {
+        return res.status(400).send({
+          ok: false,
+          msg: 'Problema al consultar el ticket.',
+          err
+        });
+      }
+    }
+
+  });
+ 
+});
+
 
 
 

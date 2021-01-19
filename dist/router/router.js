@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const cron = require("node-cron");
 const bcrypt = require("bcryptjs");
+const { v4: uuidv4 } = require('uuid');
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router_validators_1 = __importDefault(require("./router.validators"));
 const jwt_1 = __importDefault(require("../helpers/jwt"));
@@ -170,6 +171,52 @@ router.post('/api/insertCliente', middleware.validarJWT, (req, res) => __awaiter
                 return res.status(400).send({
                     ok: false,
                     msg: 'Problema al consultar el cliente.',
+                    err
+                });
+            }
+        }
+    });
+}));
+/**
+ * Método POST para insertar ticket nuevos
+ */
+router.post('/api/crearticket', middleware.validarJWT, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //Primero consultamos si existe el ticket pendiente
+    routValida.validarTicket(req.body.email, (err, data) => {
+        if (data) {
+            return res.status(400).send({
+                ok: false,
+                msg: `Tiene un ticket ( ${data[0].id_tic} ) pendiente de contestar. comuníquese con el administrador.`,
+                data
+            });
+        }
+        if (err) {
+            if (err == 'No hay registros.') {
+                let idTicket = uuidv4();
+                idTicket = idTicket.split('-');
+                const query = `
+            INSERT INTO tickets_clientes
+            (id_tic, id_cliente_tic, nombre_tic, email_tic, telefono_tic, compania_tic, asunto_tic, mensaje_tic,  estado_tic, fechareg_tic )
+            VALUES ( '${idTicket[0]}', ${req.body.id}, '${req.body.nombrecompleto}', '${req.body.email}', '${req.body.telefono}', '${req.body.compania}', '${req.body.asunto}', '${req.body.descripcion}', 0, CURRENT_TIMESTAMP() )`;
+                mysql_1.default.ejecutarQuery(query, (err, result) => {
+                    if (err) {
+                        return res.status(400).send({
+                            ok: false,
+                            msg: 'Problema al crear el ticket.',
+                            err: query
+                        });
+                    }
+                    res.status(200).send({
+                        ok: true,
+                        msg: 'Ticket creado con éxito.',
+                        idticket: idTicket[0]
+                    });
+                });
+            }
+            else {
+                return res.status(400).send({
+                    ok: false,
+                    msg: 'Problema al consultar el ticket.',
                     err
                 });
             }
