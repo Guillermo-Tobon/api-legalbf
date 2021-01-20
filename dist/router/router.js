@@ -331,6 +331,52 @@ router.get('/api/clientes', middleware.validarJWT, (req, res) => {
     });
 });
 /**
+ *Método GET que obtiene todos los tickets
+ */
+router.get('/api/alltickets', middleware.validarJWT, (req, res) => {
+    const query = ` SELECT * FROM tickets_clientes`;
+    mysql_1.default.ejecutarQuery(query, (err, tickets) => {
+        if (err) {
+            res.status(400).send({
+                ok: false,
+                msg: 'No es posible obtener los tickets. Inténtelo más tarde.',
+                error: err
+            });
+        }
+        else {
+            res.status(200).send({
+                ok: true,
+                tickets
+            });
+        }
+    });
+});
+/**
+ *Método GET que obtiene los tickets por id de usuario
+ */
+router.get('/api/tickets/:id', middleware.validarJWT, (req, res) => {
+    const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
+    const query = `
+                SELECT * 
+                FROM tickets_clientes 
+                WHERE id_cliente_tic = ${escapeId}`;
+    mysql_1.default.ejecutarQuery(query, (err, tickets) => {
+        if (err) {
+            res.status(400).send({
+                ok: false,
+                msg: 'No es posible obtener los tickets. Inténtelo más tarde.',
+                error: err
+            });
+        }
+        else {
+            res.status(200).send({
+                ok: true,
+                tickets
+            });
+        }
+    });
+});
+/**
  *Método GET que obtiene usuario por id
  */
 router.get('/usuario/:id', (req, res) => {
@@ -377,50 +423,6 @@ router.get('/orientacion/:idVio/:idAgre', (req, res) => {
             res.status(200).send({
                 ok: true,
                 orientacion
-            });
-        }
-    });
-});
-/**
- * Método GET que obtiene las entidades por ID
- */
-router.get('/entidades/:idEnti', (req, res) => {
-    const escIdEnti = mysql_1.default.instance.cnn.escape(req.params.idEnti);
-    const query = `
-                SELECT *
-                FROM entidades_manizales
-                WHERE cod_enti = ${escIdEnti}`;
-    mysql_1.default.ejecutarQuery(query, (err, entidades) => {
-        if (err) {
-            res.status(400).send({
-                ok: false,
-                error: err
-            });
-        }
-        else {
-            res.status(200).send({
-                ok: true,
-                entidades
-            });
-        }
-    });
-});
-/**
- * Método GET que obtiene los artículos de información por orden ascendente
- */
-router.get('/informacion', (req, res) => {
-    const query = `SELECT * FROM informacion ORDER BY fecha_info DESC`;
-    mysql_1.default.ejecutarQuery(query, (err, informacion) => {
-        if (err) {
-            res.status(400).send({
-                ok: false,
-                error: err
-            });
-        }
-        else {
-            res.status(200).send({
-                ok: true,
-                informacion
             });
         }
     });
