@@ -19,7 +19,7 @@ class NodeMailer {
                 subject: `${this.dataInfo.asunto} ✔`,
                 html: `<b>${this.dataInfo.asunto}</b>
                  <p>Señor(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
-                 <p>${this.dataInfo.descripcion}</p>`,
+                 ${this.dataInfo.descripcion}`,
             };
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
