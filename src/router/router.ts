@@ -284,48 +284,6 @@ router.post('/api/email', middleware.validarJWT, async(req: Request, res: Respon
 
 
 
-/**
- * Método POST para actualizar cliente por id
- */
-router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Response ) =>{
-  
-  const query = `
-                UPDATE usuarios
-                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
-                WHERE id_us = ${req.body.id} `;
-
-  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
-    
-    if ( err ) {
-      return res.status(400).send({
-        ok: false,
-        error: err
-      });
-
-    } 
-
-    if ( result.affectedRows == 0 ) {
-
-      return res.status(400).send({
-        ok: false,
-        msg: 'No es posible actualizar el cliente. Verifica los datos.',
-        error: err
-      });
-      
-    } else {
-      return res.status(200).send({
-        ok: true,
-        msg: 'Cliente actualizado con éxito.',
-        result
-      });
-    }
-
-
-  });
-  
-});
-
-
 
 
 
@@ -540,6 +498,87 @@ router.get('/orientacion/:idVio/:idAgre', (req: Request, res: Response ) =>{
   });
 
 });
+
+
+
+
+/*******************************************************************************************/
+/*********** MÉTODOS PUT ************/
+/*******************************************************************************************/
+
+/**
+ * Método POST para actualizar cliente por id
+ */
+router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Response ) =>{
+  
+  const query = `
+                UPDATE usuarios
+                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
+                WHERE id_us = ${req.body.id} `;
+
+  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+    
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } 
+
+    if ( result.affectedRows == 0 ) {
+
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible actualizar el cliente. Verifica los datos.',
+        error: err
+      });
+      
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: 'Cliente actualizado con éxito.',
+        result
+      });
+    }
+
+
+  });
+  
+});
+
+
+
+
+/*******************************************************************************************/
+/*********** MÉTODOS DELETE ************/
+/*******************************************************************************************/
+
+router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const escapeTick = MySQL.instance.cnn.escape(req.params.ticket);
+
+  const query = `DELETE FROM tickets_clientes WHERE id_tic = ${escapeTick}`;
+
+  MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
+    if ( err ) {
+      res.status(400).send({
+        ok: false,
+        msg: `No es posible eliminar el ticket ${escapeTick}. Inténtelo más tarde.`,
+        error: err
+      });
+
+    } else {
+      res.status(200).send({
+        ok: true,
+        msg: `El ticket ${escapeTick} fue eliminado con éxito.`,
+        result
+      })
+    }
+  })
+
+})
+
 
 
 

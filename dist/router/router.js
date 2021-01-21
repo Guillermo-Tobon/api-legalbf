@@ -230,37 +230,6 @@ router.post('/api/email', middleware.validarJWT, (req, res) => __awaiter(void 0,
     const nodemailer = new config_nodemailer_1.default(req.body);
     yield nodemailer.SendMailer(req, res);
 }));
-/**
- * Método POST para actualizar cliente por id
- */
-router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
-    const query = `
-                UPDATE usuarios
-                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
-                WHERE id_us = ${req.body.id} `;
-    mysql_1.default.ejecutarQuery(query, (err, result) => {
-        if (err) {
-            return res.status(400).send({
-                ok: false,
-                error: err
-            });
-        }
-        if (result.affectedRows == 0) {
-            return res.status(400).send({
-                ok: false,
-                msg: 'No es posible actualizar el cliente. Verifica los datos.',
-                error: err
-            });
-        }
-        else {
-            return res.status(200).send({
-                ok: true,
-                msg: 'Cliente actualizado con éxito.',
-                result
-            });
-        }
-    });
-});
 /*******************************************************************************************/
 /*********** MÉTODOS GET ************/
 /*******************************************************************************************/
@@ -423,6 +392,63 @@ router.get('/orientacion/:idVio/:idAgre', (req, res) => {
             res.status(200).send({
                 ok: true,
                 orientacion
+            });
+        }
+    });
+});
+/*******************************************************************************************/
+/*********** MÉTODOS PUT ************/
+/*******************************************************************************************/
+/**
+ * Método POST para actualizar cliente por id
+ */
+router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
+    const query = `
+                UPDATE usuarios
+                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
+                WHERE id_us = ${req.body.id} `;
+    mysql_1.default.ejecutarQuery(query, (err, result) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                error: err
+            });
+        }
+        if (result.affectedRows == 0) {
+            return res.status(400).send({
+                ok: false,
+                msg: 'No es posible actualizar el cliente. Verifica los datos.',
+                error: err
+            });
+        }
+        else {
+            return res.status(200).send({
+                ok: true,
+                msg: 'Cliente actualizado con éxito.',
+                result
+            });
+        }
+    });
+});
+/*******************************************************************************************/
+/*********** MÉTODOS DELETE ************/
+/*******************************************************************************************/
+router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req, res) => {
+    const escapeTick = mysql_1.default.instance.cnn.escape(req.params.ticket);
+    const query = `DELETE FROM tickets_clientes WHERE id_tic = ${escapeTick}`;
+    mysql_1.default.ejecutarQuery(query, (err, result) => {
+        if (err) {
+            res.status(400).send({
+                ok: false,
+                msg: `No es posible eliminar el ticket ${escapeTick}. Inténtelo más tarde.`,
+                error: err
+            });
+        }
+        else {
+            res.status(200).send({
+                ok: true,
+                msg: `El ticket ${escapeTick} fue eliminado con éxito.`,
+                result
             });
         }
     });
