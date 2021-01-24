@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const FileUpload = require("express-fileupload");
 const server_1 = __importDefault(require("./server/server"));
 const router_1 = __importDefault(require("./router/router"));
 const mysql_1 = __importDefault(require("./mysql/mysql"));
@@ -13,6 +14,7 @@ const server = server_1.default.init(parseInt(port));
 server.app.use(bodyParser.urlencoded({ extended: false }));
 server.app.use(bodyParser.json());
 server.app.use(cors());
+server.app.use(FileUpload());
 server.app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');

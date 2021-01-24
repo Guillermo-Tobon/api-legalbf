@@ -2,12 +2,13 @@ import { Router, Request, Response } from 'express';
 import cron = require('node-cron');
 import bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+import NodeMailer from '../nodemailer/config-nodemailer';
 
 import MySQL from '../mysql/mysql';
 import RouterValida from './router.validators';
 import JsonWebToken from '../helpers/jwt';
 import MiddlewareJWT from '../middlewares/validar-jwt';
-import NodeMailer from '../nodemailer/config-nodemailer';
+import FileUploads from '../uploads/upload';
 
 const routValida = new RouterValida();
 const jwt = new JsonWebToken();
@@ -152,62 +153,6 @@ router.post('/api/loginUser', (req: Request, res: Response ) =>{
     });
   }
 
-});
-
-
-
-/**
- * Método POST para insertar clientes nuevos
- */
-router.post('/api/insertCliente', middleware.validarJWT, async(req: Request, res: Response ) =>{
-  
-  //Primero consultamos si existe el cliente
-  await routValida.validarCliente( req.body.email, (err:any, data:any) =>{
-
-    if(data){
-      return res.status(400).send({ 
-        ok: false, 
-        msg: 'El cliente con este correo electrónico ya está registrado.'
-      }); 
-    }
-    
-    if ( err ) {
-      if ( err == 'No hay registros.' ) {
-
-        const query = `
-            INSERT INTO informacion_clientes
-            (nombres_cli, apellidos_cli, email_cli, telefono_cli, compania_cli, estado_cli, fechareg_cli )
-            VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${req.body.telefono}', '${req.body.compania}', ${req.body.estado}, CURRENT_TIMESTAMP() )`;
-        
-        MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
-          if ( err ) {
-            return res.status(400).send({
-              ok: false,
-              msg: 'Problema al crear el cliente.',
-              err
-        
-            });
-            
-          } 
-          res.status(200).send({
-            ok: true,
-            msg: 'Cliente registrado con éxito.',
-            result
-          })
-
-        });
-
-      } else {
-        return res.status(400).send({
-          ok: false,
-          msg: 'Problema al consultar el cliente.',
-          err
-        })
-      }
-    }
-
-  });
- 
 });
 
 
@@ -468,38 +413,6 @@ router.get('/usuario/:id', ( req: Request, res: Response ) =>{
 
 
 
-/**
- * Método GET que obtiene la orientación según el filtro
- */
-router.get('/orientacion/:idVio/:idAgre', (req: Request, res: Response ) =>{
-  const escIdVio = MySQL.instance.cnn.escape(req.params.idVio);
-  const escIdAgre = MySQL.instance.cnn.escape(req.params.idAgre);
-
-  const query = `
-                SELECT T1.tipo_vio AS tipoViolencia, T2.tipo_agre AS tipoAgresor,  T3.titulo_ori AS titulo, T3.texto_ori AS texto
-                FROM info_orientacion AS T3
-                INNER JOIN violencia AS T1 ON T1.id_vio = T3.id_violencia_ori
-                INNER JOIN agresor AS T2 ON T2.id_agre = T3.id_agresor_ori
-                WHERE id_violencia_ori = ${escIdVio} AND id_agresor_ori = ${escIdAgre}`;
-
-  MySQL.ejecutarQuery(query, (err:any, orientacion: Object[]) =>{
-    if ( err ) {
-      res.status(400).send({
-        ok: false,
-        error: err
-      });
-
-    } else {
-      res.status(200).send({
-        ok: true,
-        orientacion
-      })
-    }
-  });
-
-});
-
-
 
 
 /*******************************************************************************************/
@@ -546,6 +459,49 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
   });
   
 });
+
+
+
+/**
+ * Método POST para cargar archivos del cliente
+ */
+router.put('/api/uploadfile/:extension/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
+
+  const escapeId = MySQL.instance.cnn.escape(req.params.id);
+  const escapeExten = MySQL.instance.cnn.escape(req.params.extension);
+  
+  if ( FileUploads.upFile ) {
+
+    const query = `
+            INSERT INTO informacion_clientes
+            (id_us_info, nom_archivo_info, tipo_archivo_info, fech_publica_info )
+            VALUES ( ${escapeId}, '${FileUploads.nomDocumento}', ${escapeExten}, CURRENT_TIMESTAMP() )`;
+        
+    MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
+      if ( err ) {
+        return res.status(400).send({
+          ok: false,
+          msg: 'Problema al crear la información.',
+          err
+    
+        });
+        
+      } 
+      return res.status(200).send({
+        ok: true,
+        msg: 'Información registrada con éxito.',
+        result
+      })
+
+    });
+    
+  }
+
+  
+
+  
+
+})
 
 
 

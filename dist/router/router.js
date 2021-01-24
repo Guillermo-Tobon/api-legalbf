@@ -16,11 +16,12 @@ const express_1 = require("express");
 const cron = require("node-cron");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require('uuid');
+const config_nodemailer_1 = __importDefault(require("../nodemailer/config-nodemailer"));
 const mysql_1 = __importDefault(require("../mysql/mysql"));
 const router_validators_1 = __importDefault(require("./router.validators"));
 const jwt_1 = __importDefault(require("../helpers/jwt"));
 const validar_jwt_1 = __importDefault(require("../middlewares/validar-jwt"));
-const config_nodemailer_1 = __importDefault(require("../nodemailer/config-nodemailer"));
+const upload_1 = __importDefault(require("../uploads/upload"));
 const routValida = new router_validators_1.default();
 const jwt = new jwt_1.default();
 const middleware = new validar_jwt_1.default();
@@ -134,49 +135,6 @@ router.post('/api/loginUser', (req, res) => {
         });
     }
 });
-/**
- * Método POST para insertar clientes nuevos
- */
-router.post('/api/insertCliente', middleware.validarJWT, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //Primero consultamos si existe el cliente
-    yield routValida.validarCliente(req.body.email, (err, data) => {
-        if (data) {
-            return res.status(400).send({
-                ok: false,
-                msg: 'El cliente con este correo electrónico ya está registrado.'
-            });
-        }
-        if (err) {
-            if (err == 'No hay registros.') {
-                const query = `
-            INSERT INTO informacion_clientes
-            (nombres_cli, apellidos_cli, email_cli, telefono_cli, compania_cli, estado_cli, fechareg_cli )
-            VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${req.body.telefono}', '${req.body.compania}', ${req.body.estado}, CURRENT_TIMESTAMP() )`;
-                mysql_1.default.ejecutarQuery(query, (err, result) => {
-                    if (err) {
-                        return res.status(400).send({
-                            ok: false,
-                            msg: 'Problema al crear el cliente.',
-                            err
-                        });
-                    }
-                    res.status(200).send({
-                        ok: true,
-                        msg: 'Cliente registrado con éxito.',
-                        result
-                    });
-                });
-            }
-            else {
-                return res.status(400).send({
-                    ok: false,
-                    msg: 'Problema al consultar el cliente.',
-                    err
-                });
-            }
-        }
-    });
-}));
 /**
  * Método POST para insertar ticket nuevos
  */
@@ -369,33 +327,6 @@ router.get('/usuario/:id', (req, res) => {
         }
     });
 });
-/**
- * Método GET que obtiene la orientación según el filtro
- */
-router.get('/orientacion/:idVio/:idAgre', (req, res) => {
-    const escIdVio = mysql_1.default.instance.cnn.escape(req.params.idVio);
-    const escIdAgre = mysql_1.default.instance.cnn.escape(req.params.idAgre);
-    const query = `
-                SELECT T1.tipo_vio AS tipoViolencia, T2.tipo_agre AS tipoAgresor,  T3.titulo_ori AS titulo, T3.texto_ori AS texto
-                FROM info_orientacion AS T3
-                INNER JOIN violencia AS T1 ON T1.id_vio = T3.id_violencia_ori
-                INNER JOIN agresor AS T2 ON T2.id_agre = T3.id_agresor_ori
-                WHERE id_violencia_ori = ${escIdVio} AND id_agresor_ori = ${escIdAgre}`;
-    mysql_1.default.ejecutarQuery(query, (err, orientacion) => {
-        if (err) {
-            res.status(400).send({
-                ok: false,
-                error: err
-            });
-        }
-        else {
-            res.status(200).send({
-                ok: true,
-                orientacion
-            });
-        }
-    });
-});
 /*******************************************************************************************/
 /*********** MÉTODOS PUT ************/
 /*******************************************************************************************/
@@ -430,6 +361,33 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
         }
     });
 });
+/**
+ * Método POST para cargar archivos del cliente
+ */
+router.put('/api/uploadfile/:extension/:id', [middleware.validarJWT, upload_1.default.uploadsFile], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
+    const escapeExten = mysql_1.default.instance.cnn.escape(req.params.extension);
+    if (upload_1.default.upFile) {
+        const query = `
+            INSERT INTO informacion_clientes
+            (id_us_info, nom_archivo_info, tipo_archivo_info, fech_publica_info )
+            VALUES ( ${escapeId}, '${upload_1.default.nomDocumento}', ${escapeExten}, CURRENT_TIMESTAMP() )`;
+        mysql_1.default.ejecutarQuery(query, (err, result) => {
+            if (err) {
+                return res.status(400).send({
+                    ok: false,
+                    msg: 'Problema al crear la información.',
+                    err
+                });
+            }
+            return res.status(200).send({
+                ok: true,
+                msg: 'Información registrada con éxito.',
+                result
+            });
+        });
+    }
+}));
 /*******************************************************************************************/
 /*********** MÉTODOS DELETE ************/
 /*******************************************************************************************/

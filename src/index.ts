@@ -1,5 +1,6 @@
 import bodyParser = require('body-parser');
 import cors = require('cors');
+import FileUpload = require('express-fileupload');
 
 import Server from './server/server';
 import router from './router/router';
@@ -11,6 +12,7 @@ const server = Server.init( parseInt(port) );
 server.app.use(bodyParser.urlencoded({ extended: false }));
 server.app.use(bodyParser.json());
 server.app.use(cors());
+server.app.use(FileUpload());
 server.app.use((req, res, next) =>{
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
