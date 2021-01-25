@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const { v4: uuidv4 } = require('uuid');
 class FileUploads {
     constructor() { }
@@ -66,6 +67,13 @@ FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 FileUploads.retornaImagen = (req, res) => {
     const imagen = req.params.imagen;
     const extension = req.params.extension;
-    const pathImg = path_1.default.join(__dirname, `../files/${extension}/${imagen}`);
-    res.sendFile(pathImg);
+    const pathFile = path_1.default.join(__dirname, `../../files/${extension}/${imagen}`);
+    //Archivo por defecto
+    if (fs_1.default.existsSync(pathFile)) {
+        res.sendFile(pathFile);
+    }
+    else {
+        const pathFile = path_1.default.join(__dirname, `../../files/file-malo.png`);
+        res.sendFile(pathFile);
+    }
 };

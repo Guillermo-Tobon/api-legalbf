@@ -285,7 +285,7 @@ router.get('/api/usuarios', middleware.validarJWT, ( req: Request, res: Response
       });
 
     } else {
-      res.status(200).send({
+      return res.status(200).send({
         ok: true,
         usuarios
       })
@@ -381,16 +381,42 @@ router.get('/api/tickets/:id', middleware.validarJWT, ( req: Request, res: Respo
 
 
 
+/**
+ *Método GET que obtiene los archivos por id de usuario
+ */
+router.get('/api/archivos/:id', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const escapeId = MySQL.instance.cnn.escape(req.params.id);
+
+  const query = ` SELECT * FROM informacion_clientes WHERE  id_us_info = ${escapeId}`;
+
+  MySQL.ejecutarQuery( query, (err:any, archivos: Object[]) =>{
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } else {
+      return res.status(200).send({
+        ok: true,
+        archivos
+      })
+    }
+  })
+
+})
+
+
+
 
 /**
  *Método GET que obtiene la imagen
  */
 router.get('/api/getimagen/:extension/:imagen', middleware.validarJWT, ( req: Request, res: Response ) =>{
 
-  FileUploads.retornaImagen
+  FileUploads.retornaImagen(req, res);
 });
-
-
 
 
 
@@ -491,6 +517,9 @@ router.put('/api/uploadfile/:extension/:id', [middleware.validarJWT, FileUploads
 /*********** MÉTODOS DELETE ************/
 /*******************************************************************************************/
 
+/**
+ * Método para eliminar tickets por id
+ */
 router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req: Request, res: Response ) =>{
 
   const escapeTick = MySQL.instance.cnn.escape(req.params.ticket);
@@ -518,6 +547,33 @@ router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req: Request,
 
 
 
+/**
+ * Método para eliminar archivos por id
+ */
+router.delete('/api/deletearchivo/:id', middleware.validarJWT, (req: Request, res: Response ) =>{
+ 
+  const escapeId = MySQL.instance.cnn.escape(req.params.id);
+
+  const query = `DELETE FROM informacion_clientes WHERE id_info = ${escapeId}`;
+
+  MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        msg: `No es posible eliminar el archivo. Inténtelo más tarde.`,
+        error: err
+      });
+
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: `El archivo fue eliminado con éxito.`,
+        result
+      })
+    }
+  })
+
+})
 
 
 

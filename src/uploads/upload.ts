@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { Request, Response } from 'express';
 import fileUpload from 'express-fileupload';
 const { v4: uuidv4 } = require('uuid');
@@ -74,13 +75,24 @@ export default class FileUploads {
   }
 
 
+
+
   //Método para mostrar la imagen
   public static retornaImagen = (req:Request, res:Response) =>{
     const imagen = req.params.imagen;
     const extension = req.params.extension;
 
-    const pathImg = path.join( __dirname, `../files/${extension}/${imagen}` );
-    res.sendFile( pathImg );
+    const pathFile = path.join( __dirname, `../../files/${extension}/${imagen}` );
+    
+    //Archivo por defecto
+    if (fs.existsSync( pathFile ) ) {
+      res.sendFile( pathFile );
+      
+    } else {
+      const pathFile = path.join( __dirname, `../../files/file-malo.png` );
+      res.sendFile( pathFile );
+      
+    }
 
   }
 
