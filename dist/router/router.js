@@ -304,28 +304,10 @@ router.get('/api/tickets/:id', middleware.validarJWT, (req, res) => {
     });
 });
 /**
- *Método GET que obtiene usuario por id
+ *Método GET que obtiene la imagen
  */
-router.get('/usuario/:id', (req, res) => {
-    const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
-    const query = `
-                SELECT * 
-                FROM usuarios 
-                WHERE num_identifica_us = ${escapeId}`;
-    mysql_1.default.ejecutarQuery(query, (err, usuario) => {
-        if (err) {
-            res.status(400).send({
-                ok: false,
-                error: err
-            });
-        }
-        else {
-            res.status(200).send({
-                ok: true,
-                usuario: usuario[0]
-            });
-        }
-    });
+router.get('/api/getimagen/:extension/:imagen', middleware.validarJWT, (req, res) => {
+    upload_1.default.retornaImagen;
 });
 /*******************************************************************************************/
 /*********** MÉTODOS PUT ************/

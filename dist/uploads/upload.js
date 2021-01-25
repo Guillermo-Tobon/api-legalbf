@@ -8,7 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
 const { v4: uuidv4 } = require('uuid');
 class FileUploads {
     constructor() { }
@@ -16,6 +20,7 @@ class FileUploads {
 exports.default = FileUploads;
 FileUploads.upFile = false;
 //Métodos de la clase
+//Método para cargar imagen
 FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const exten = req.params.extension;
     //Validar que exista un archivo
@@ -57,3 +62,10 @@ FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         next();
     });
 });
+//Método para mostrar la imagen
+FileUploads.retornaImagen = (req, res) => {
+    const imagen = req.params.imagen;
+    const extension = req.params.extension;
+    const pathImg = path_1.default.join(__dirname, `../files/${extension}/${imagen}`);
+    res.sendFile(pathImg);
+};

@@ -383,33 +383,14 @@ router.get('/api/tickets/:id', middleware.validarJWT, ( req: Request, res: Respo
 
 
 /**
- *Método GET que obtiene usuario por id
+ *Método GET que obtiene la imagen
  */
-router.get('/usuario/:id', ( req: Request, res: Response ) =>{
+router.get('/api/getimagen/:extension/:imagen', middleware.validarJWT, ( req: Request, res: Response ) =>{
 
-  const escapeId = MySQL.instance.cnn.escape(req.params.id);
-
-  const query = `
-                SELECT * 
-                FROM usuarios 
-                WHERE num_identifica_us = ${escapeId}`;
-
-  MySQL.ejecutarQuery( query, (err:any, usuario: Object[]) =>{
-    if ( err ) {
-      res.status(400).send({
-        ok: false,
-        error: err
-      });
-
-    } else {
-      res.status(200).send({
-        ok: true,
-        usuario: usuario[0]
-      })
-    }
-  })
-
+  FileUploads.retornaImagen
 });
+
+
 
 
 

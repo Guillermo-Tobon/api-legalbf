@@ -1,3 +1,4 @@
+import path from 'path';
 import { Request, Response } from 'express';
 import fileUpload from 'express-fileupload';
 const { v4: uuidv4 } = require('uuid');
@@ -15,6 +16,8 @@ export default class FileUploads {
 
 
   //Métodos de la clase
+
+  //Método para cargar imagen
   public static uploadsFile = async( req:Request, res:Response, next:any ) =>{
 
     const exten = req.params.extension;
@@ -68,8 +71,22 @@ export default class FileUploads {
       
     });
 
+  }
+
+
+  //Método para mostrar la imagen
+  public static retornaImagen = (req:Request, res:Response) =>{
+    const imagen = req.params.imagen;
+    const extension = req.params.extension;
+
+    const pathImg = path.join( __dirname, `../files/${extension}/${imagen}` );
+    res.sendFile( pathImg );
 
   }
+
+
+
+
 
 
 }
