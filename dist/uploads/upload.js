@@ -20,10 +20,10 @@ class FileUploads {
 }
 exports.default = FileUploads;
 FileUploads.upFile = false;
+FileUploads.extenFile = 'pdf';
 //Métodos de la clase
 //Método para cargar imagen
 FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const exten = req.params.extension;
     //Validar que exista un archivo
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send({
@@ -43,13 +43,16 @@ FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             msg: 'El tipo de archivo no es valido.',
         });
     }
+    if (extension !== 'pdf') {
+        FileUploads.extenFile = 'word';
+    }
     //Generar nombre archivo
     let nomArchivo = uuidv4();
     nomArchivo = nomArchivo.split('-');
     nomArchivo = `${nomArchivo[0]}-${file.name}`;
     FileUploads.nomDocumento = yield nomArchivo;
     //Path para guardar el archivo
-    const path = `./files/${exten}/${nomArchivo}`;
+    const path = `./files/${FileUploads.extenFile}/${nomArchivo}`;
     //Mover el archivo
     yield file.mv(path, (err) => {
         if (err) {
@@ -70,10 +73,18 @@ FileUploads.retornaImagen = (req, res) => {
     const pathFile = path_1.default.join(__dirname, `../../files/${extension}/${imagen}`);
     //Archivo por defecto
     if (fs_1.default.existsSync(pathFile)) {
+        return res.status(200).send({
+            ok: true,
+            pathFile
+        });
         res.sendFile(pathFile);
     }
     else {
         const pathFile = path_1.default.join(__dirname, `../../files/file-malo.png`);
+        return res.status(400).send({
+            ok: false,
+            pathFile
+        });
         res.sendFile(pathFile);
     }
 };

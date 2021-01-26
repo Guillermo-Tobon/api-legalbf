@@ -472,17 +472,16 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 /**
  * Método POST para cargar archivos del cliente
  */
-router.put('/api/uploadfile/:extension/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
+router.put('/api/uploadfile/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
 
   const escapeId = MySQL.instance.cnn.escape(req.params.id);
-  const escapeExten = MySQL.instance.cnn.escape(req.params.extension);
   
   if ( FileUploads.upFile ) {
 
     const query = `
             INSERT INTO informacion_clientes
             (id_us_info, nom_archivo_info, tipo_archivo_info, fech_publica_info )
-            VALUES ( ${escapeId}, '${FileUploads.nomDocumento}', ${escapeExten}, CURRENT_TIMESTAMP() )`;
+            VALUES ( ${escapeId}, '${FileUploads.nomDocumento}', '${FileUploads.extenFile}', CURRENT_TIMESTAMP() )`;
         
     MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
       if ( err ) {

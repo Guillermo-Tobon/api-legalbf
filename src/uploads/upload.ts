@@ -12,6 +12,7 @@ export default class FileUploads {
   //Atributos de la clase
   static nomDocumento: any;
   static upFile:boolean = false;
+  static extenFile:String = 'pdf';
 
   constructor(){}
 
@@ -20,8 +21,6 @@ export default class FileUploads {
 
   //Método para cargar imagen
   public static uploadsFile = async( req:Request, res:Response, next:any ) =>{
-
-    const exten = req.params.extension;
 
     //Validar que exista un archivo
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -46,6 +45,10 @@ export default class FileUploads {
       });
     }
 
+    if( extension !== 'pdf' ){
+      FileUploads.extenFile = 'word';
+    } 
+
 
     //Generar nombre archivo
     let nomArchivo:any = uuidv4();
@@ -55,7 +58,7 @@ export default class FileUploads {
 
 
     //Path para guardar el archivo
-    const path = `./files/${exten}/${nomArchivo}`;
+    const path = `./files/${FileUploads.extenFile}/${nomArchivo}`;
     
     //Mover el archivo
     await file.mv( path, (err:any) =>{
@@ -86,10 +89,21 @@ export default class FileUploads {
     
     //Archivo por defecto
     if (fs.existsSync( pathFile ) ) {
+
+      return res.status(200).send({
+        ok: true,
+        pathFile
+      })
+
       res.sendFile( pathFile );
       
     } else {
       const pathFile = path.join( __dirname, `../../files/file-malo.png` );
+      return res.status(400).send({
+        ok: false,
+        pathFile
+      })
+
       res.sendFile( pathFile );
       
     }
