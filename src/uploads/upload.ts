@@ -80,12 +80,12 @@ export default class FileUploads {
 
 
 
-  //Método para mostrar la imagen
-  public static retornaImagen = (req:Request, res:Response) =>{
-    const imagen = req.params.imagen;
+  //Método para mostrar el archivo
+  public static returnFile = (req:Request, res:Response) =>{
+    const archivo = req.params.archivo;
     const extension = req.params.extension;
 
-    const pathFile = path.join( __dirname, `../../files/${extension}/${imagen}` );
+    const pathFile = path.join( __dirname, `../../files/${extension}/${archivo}` );
     
     //Archivo por defecto
     if (fs.existsSync( pathFile ) ) {
@@ -105,6 +105,30 @@ export default class FileUploads {
       })
 
       res.sendFile( pathFile );
+      
+    }
+
+  }
+
+
+  //Método para eliminar el archivo
+  public static deleteFile = async(req:Request, res:Response, next:any) =>{
+
+    const extension = req.params.extension;
+    const archivo = req.params.archivo;
+
+    const pathFile = path.join( __dirname, `../../files/${extension}/${archivo}` );
+
+    try {
+      await fs.unlinkSync( pathFile );
+      next();
+      
+    } catch (err) {
+      return res.status(400).send({
+        ok: false,
+        msg: `No es posible eliminar el archivo. Inténtelo más tarde.`,
+        error: err
+      });
       
     }
 

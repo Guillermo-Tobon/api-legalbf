@@ -82,6 +82,38 @@ router.post('/api/insertUsuario', async(req: Request, res: Response ) =>{
 
 
 /**
+ * Método POST para insertar inversiones 
+ */
+router.post('/api/insertInversion', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `INSERT INTO inversiones_clientes 
+                 ( id_us_inv, nombre_inv, capital_inv, tiempo_inv, tasa_ea_inv, descripcion_inv, estado_inv, fechareg_inv )
+                 VALUES ( ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, ${req.body.tiempo}, '${req.body.tasa}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
+
+  MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
+    if (err) {
+      return res.status(400).send({
+        ok: false,
+        msg: 'Problema al crear la inversión.',
+        err: query
+      });
+
+    }
+    res.status(200).send({
+      ok: true,
+      msg: 'Inversión creada con éxito.',
+      result
+    });
+
+  });
+
+
+})
+
+
+
+
+/**
  * Método POST para iniciar sesión
  */
 router.post('/api/loginUser', (req: Request, res: Response ) =>{
@@ -413,9 +445,9 @@ router.get('/api/archivos/:id', middleware.validarJWT, ( req: Request, res: Resp
 /**
  *Método GET que obtiene la imagen
  */
-router.get('/api/getimagen/:extension/:imagen', middleware.validarJWT, ( req: Request, res: Response ) =>{
+router.get('/api/getarchivo/:extension/:archivo', middleware.validarJWT, ( req: Request, res: Response ) =>{
 
-  FileUploads.retornaImagen(req, res);
+  FileUploads.returnFile(req, res);
 });
 
 
@@ -549,11 +581,12 @@ router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req: Request,
 /**
  * Método para eliminar archivos por id
  */
-router.delete('/api/deletearchivo/:id', middleware.validarJWT, (req: Request, res: Response ) =>{
+router.delete('/api/deletearchivo/:extension/:archivo/:id', [middleware.validarJWT, FileUploads.deleteFile], (req: Request, res: Response ) =>{
  
   const escapeId = MySQL.instance.cnn.escape(req.params.id);
 
-  const query = `DELETE FROM informacion_clientes WHERE id_info = ${escapeId}`;
+  const query = `DELETE FROM informacion_clientes 
+                 WHERE id_info = ${escapeId} `;
 
   MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
     if ( err ) {

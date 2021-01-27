@@ -75,6 +75,28 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
     });
 }));
 /**
+ * Método POST para insertar inversiones
+ */
+router.post('/api/insertInversion', middleware.validarJWT, (req, res) => {
+    const query = `INSERT INTO inversiones_clientes 
+                 ( id_us_inv, nombre_inv, capital_inv, tiempo_inv, tasa_ea_inv, descripcion_inv, estado_inv, fechareg_inv )
+                 VALUES ( ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, ${req.body.tiempo}, '${req.body.tasa}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
+    mysql_1.default.ejecutarQuery(query, (err, result) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                msg: 'Problema al crear la inversión.',
+                err: query
+            });
+        }
+        res.status(200).send({
+            ok: true,
+            msg: 'Inversión creada con éxito.',
+            result
+        });
+    });
+});
+/**
  * Método POST para iniciar sesión
  */
 router.post('/api/loginUser', (req, res) => {
@@ -327,8 +349,8 @@ router.get('/api/archivos/:id', middleware.validarJWT, (req, res) => {
 /**
  *Método GET que obtiene la imagen
  */
-router.get('/api/getimagen/:extension/:imagen', middleware.validarJWT, (req, res) => {
-    upload_1.default.retornaImagen(req, res);
+router.get('/api/getarchivo/:extension/:archivo', middleware.validarJWT, (req, res) => {
+    upload_1.default.returnFile(req, res);
 });
 /*******************************************************************************************/
 /*********** MÉTODOS PUT ************/
@@ -419,9 +441,10 @@ router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req, res) => 
 /**
  * Método para eliminar archivos por id
  */
-router.delete('/api/deletearchivo/:id', middleware.validarJWT, (req, res) => {
+router.delete('/api/deletearchivo/:extension/:archivo/:id', [middleware.validarJWT, upload_1.default.deleteFile], (req, res) => {
     const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
-    const query = `DELETE FROM informacion_clientes WHERE id_info = ${escapeId}`;
+    const query = `DELETE FROM informacion_clientes 
+                 WHERE id_info = ${escapeId} `;
     mysql_1.default.ejecutarQuery(query, (err, result) => {
         if (err) {
             return res.status(400).send({

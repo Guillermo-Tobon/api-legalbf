@@ -66,11 +66,11 @@ FileUploads.uploadsFile = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         next();
     });
 });
-//Método para mostrar la imagen
-FileUploads.retornaImagen = (req, res) => {
-    const imagen = req.params.imagen;
+//Método para mostrar el archivo
+FileUploads.returnFile = (req, res) => {
+    const archivo = req.params.archivo;
     const extension = req.params.extension;
-    const pathFile = path_1.default.join(__dirname, `../../files/${extension}/${imagen}`);
+    const pathFile = path_1.default.join(__dirname, `../../files/${extension}/${archivo}`);
     //Archivo por defecto
     if (fs_1.default.existsSync(pathFile)) {
         return res.status(200).send({
@@ -88,3 +88,20 @@ FileUploads.retornaImagen = (req, res) => {
         res.sendFile(pathFile);
     }
 };
+//Método para eliminar el archivo
+FileUploads.deleteFile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const extension = req.params.extension;
+    const archivo = req.params.archivo;
+    const pathFile = path_1.default.join(__dirname, `../../files/${extension}/${archivo}`);
+    try {
+        yield fs_1.default.unlinkSync(pathFile);
+        next();
+    }
+    catch (err) {
+        return res.status(400).send({
+            ok: false,
+            msg: `No es posible eliminar el archivo. Inténtelo más tarde.`,
+            error: err
+        });
+    }
+});
