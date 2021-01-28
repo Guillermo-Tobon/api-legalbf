@@ -78,9 +78,11 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
  * Método POST para insertar inversiones
  */
 router.post('/api/insertInversion', middleware.validarJWT, (req, res) => {
+    let idInver = uuidv4();
+    idInver = idInver.split('-');
     const query = `INSERT INTO inversiones_clientes 
-                 ( id_us_inv, nombre_inv, capital_inv, tiempo_inv, tasa_ea_inv, descripcion_inv, estado_inv, fechareg_inv )
-                 VALUES ( ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, ${req.body.tiempo}, '${req.body.tasa}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
+                 ( id_inv, id_us_inv, nombre_inv, capital_inv, moneda_inv, tiempo_inv, tasa_ea_inv, pais_inv, descripcion_inv, estado_inv, fechareg_inv )
+                 VALUES ( '${idInver[0]}', ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, '${req.body.moneda}', ${req.body.tiempo}, '${req.body.tasa}', '${req.body.pais}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
     mysql_1.default.ejecutarQuery(query, (err, result) => {
         if (err) {
             return res.status(400).send({
@@ -92,6 +94,7 @@ router.post('/api/insertInversion', middleware.validarJWT, (req, res) => {
         res.status(200).send({
             ok: true,
             msg: 'Inversión creada con éxito.',
+            idInver: idInver[0],
             result
         });
     });
@@ -326,11 +329,60 @@ router.get('/api/tickets/:id', middleware.validarJWT, (req, res) => {
     });
 });
 /**
+ *Método GET que obtiene las inversiones por id de usuario
+ */
+router.get('/api/inversiones/:id', middleware.validarJWT, (req, res) => {
+    const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
+    const query = `
+                SELECT * 
+                FROM inversiones_clientes 
+                WHERE id_us_inv = ${escapeId}`;
+    mysql_1.default.ejecutarQuery(query, (err, inversiones) => {
+        if (err) {
+            res.status(400).send({
+                ok: false,
+                msg: 'No es posible obtener las inversiones. Inténtelo más tarde.',
+                error: err
+            });
+        }
+        else {
+            res.status(200).send({
+                ok: true,
+                inversiones
+            });
+        }
+    });
+});
+/**
  *Método GET que obtiene los archivos por id de usuario
  */
 router.get('/api/archivos/:id', middleware.validarJWT, (req, res) => {
     const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
     const query = ` SELECT * FROM informacion_clientes WHERE  id_us_info = ${escapeId}`;
+    mysql_1.default.ejecutarQuery(query, (err, archivos) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                error: err
+            });
+        }
+        else {
+            return res.status(200).send({
+                ok: true,
+                archivos
+            });
+        }
+    });
+});
+/**
+ *Método GET que obtiene los archivos por id de usuario y id inversión
+ */
+router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, (req, res) => {
+    const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
+    const escapeInver = mysql_1.default.instance.cnn.escape(req.params.idInversion);
+    const query = ` SELECT * 
+                  FROM informacion_clientes 
+                  WHERE id_us_info = ${escapeId} AND id_inv = ${escapeInver}`;
     mysql_1.default.ejecutarQuery(query, (err, archivos) => {
         if (err) {
             return res.status(400).send({
@@ -389,13 +441,14 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
 /**
  * Método POST para cargar archivos del cliente
  */
-router.put('/api/uploadfile/:id', [middleware.validarJWT, upload_1.default.uploadsFile], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/api/uploadfile/:idInversion/:id', [middleware.validarJWT, upload_1.default.uploadsFile], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const escapeId = mysql_1.default.instance.cnn.escape(req.params.id);
+    const escapeIdInver = mysql_1.default.instance.cnn.escape(req.params.idInversion);
     if (upload_1.default.upFile) {
         const query = `
             INSERT INTO informacion_clientes
-            (id_us_info, nom_archivo_info, tipo_archivo_info, fech_publica_info )
-            VALUES ( ${escapeId}, '${upload_1.default.nomDocumento}', '${upload_1.default.extenFile}', CURRENT_TIMESTAMP() )`;
+            (id_us_info, id_inv, nom_archivo_info, tipo_archivo_info, fech_publica_info )
+            VALUES ( ${escapeId}, ${escapeIdInver}, '${upload_1.default.nomDocumento}', '${upload_1.default.extenFile}', CURRENT_TIMESTAMP() )`;
         mysql_1.default.ejecutarQuery(query, (err, result) => {
             if (err) {
                 return res.status(400).send({

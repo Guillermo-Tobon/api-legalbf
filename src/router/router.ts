@@ -86,9 +86,12 @@ router.post('/api/insertUsuario', async(req: Request, res: Response ) =>{
  */
 router.post('/api/insertInversion', middleware.validarJWT, (req: Request, res: Response ) =>{
 
+  let idInver = uuidv4();
+  idInver = idInver.split('-');
+
   const query = `INSERT INTO inversiones_clientes 
-                 ( id_us_inv, nombre_inv, capital_inv, tiempo_inv, tasa_ea_inv, descripcion_inv, estado_inv, fechareg_inv )
-                 VALUES ( ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, ${req.body.tiempo}, '${req.body.tasa}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
+                 ( id_inv, id_us_inv, nombre_inv, capital_inv, moneda_inv, tiempo_inv, tasa_ea_inv, pais_inv, descripcion_inv, estado_inv, fechareg_inv )
+                 VALUES ( '${idInver[0]}', ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, '${req.body.moneda}', ${req.body.tiempo}, '${req.body.tasa}', '${req.body.pais}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
 
   MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
     if (err) {
@@ -102,6 +105,7 @@ router.post('/api/insertInversion', middleware.validarJWT, (req: Request, res: R
     res.status(200).send({
       ok: true,
       msg: 'Inversión creada con éxito.',
+      idInver: idInver[0],
       result
     });
 
@@ -414,6 +418,38 @@ router.get('/api/tickets/:id', middleware.validarJWT, ( req: Request, res: Respo
 
 
 /**
+ *Método GET que obtiene las inversiones por id de usuario
+ */
+router.get('/api/inversiones/:id', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const escapeId = MySQL.instance.cnn.escape(req.params.id);
+
+  const query = `
+                SELECT * 
+                FROM inversiones_clientes 
+                WHERE id_us_inv = ${escapeId}`;
+
+  MySQL.ejecutarQuery( query, (err:any, inversiones: Object[]) =>{
+    if ( err ) {
+      res.status(400).send({
+        ok: false,
+        msg: 'No es posible obtener las inversiones. Inténtelo más tarde.',
+        error: err
+      });
+
+    } else {
+      res.status(200).send({
+        ok: true,
+        inversiones
+      })
+    }
+  })
+
+})
+
+
+
+/**
  *Método GET que obtiene los archivos por id de usuario
  */
 router.get('/api/archivos/:id', middleware.validarJWT, ( req: Request, res: Response ) =>{
@@ -421,6 +457,37 @@ router.get('/api/archivos/:id', middleware.validarJWT, ( req: Request, res: Resp
   const escapeId = MySQL.instance.cnn.escape(req.params.id);
 
   const query = ` SELECT * FROM informacion_clientes WHERE  id_us_info = ${escapeId}`;
+
+  MySQL.ejecutarQuery( query, (err:any, archivos: Object[]) =>{
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } else {
+      return res.status(200).send({
+        ok: true,
+        archivos
+      })
+    }
+  })
+
+})
+
+
+
+/**
+ *Método GET que obtiene los archivos por id de usuario y id inversión
+ */
+router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const escapeId = MySQL.instance.cnn.escape(req.params.id);
+  const escapeInver = MySQL.instance.cnn.escape(req.params.idInversion);
+
+  const query = ` SELECT * 
+                  FROM informacion_clientes 
+                  WHERE id_us_info = ${escapeId} AND id_inv = ${escapeInver}`;
 
   MySQL.ejecutarQuery( query, (err:any, archivos: Object[]) =>{
     if ( err ) {
@@ -504,16 +571,17 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 /**
  * Método POST para cargar archivos del cliente
  */
-router.put('/api/uploadfile/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
+router.put('/api/uploadfile/:idInversion/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
 
   const escapeId = MySQL.instance.cnn.escape(req.params.id);
+  const escapeIdInver = MySQL.instance.cnn.escape(req.params.idInversion);
   
   if ( FileUploads.upFile ) {
 
     const query = `
             INSERT INTO informacion_clientes
-            (id_us_info, nom_archivo_info, tipo_archivo_info, fech_publica_info )
-            VALUES ( ${escapeId}, '${FileUploads.nomDocumento}', '${FileUploads.extenFile}', CURRENT_TIMESTAMP() )`;
+            (id_us_info, id_inv, nom_archivo_info, tipo_archivo_info, fech_publica_info )
+            VALUES ( ${escapeId}, ${escapeIdInver}, '${FileUploads.nomDocumento}', '${FileUploads.extenFile}', CURRENT_TIMESTAMP() )`;
         
     MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
       if ( err ) {
