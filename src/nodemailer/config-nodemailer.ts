@@ -34,7 +34,7 @@ export default class NodeMailer{
 
         return res.status(400).send({
           ok: false,
-          msg: 'Se modificó el cliente pero no se pudo enviar el correo electrónico.',
+          msg: 'No se pudo enviar el correo electrónico.',
           error: err.message
         })
         

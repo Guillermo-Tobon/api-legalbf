@@ -363,7 +363,7 @@ router.get('/api/clientes', middleware.validarJWT, ( req: Request, res: Response
  */
 router.get('/api/alltickets', middleware.validarJWT, ( req: Request, res: Response ) =>{
 
-  const query = ` SELECT * FROM tickets_clientes`;
+  const query = ` SELECT * FROM tickets_clientes `;
 
   MySQL.ejecutarQuery( query, (err:any, tickets: Object[]) =>{
     if ( err ) {
@@ -417,6 +417,35 @@ router.get('/api/tickets/:id', middleware.validarJWT, ( req: Request, res: Respo
 
 
 
+
+/**
+ *Método GET que obtiene las inversiones por id de usuario
+ */
+router.get('/api/inversiones', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const query = ` SELECT * FROM inversiones_clientes ORDER BY fechareg_inv DESC `;
+
+  MySQL.ejecutarQuery( query, (err:any, inversiones: Object[]) =>{
+    if ( err ) {
+      res.status(400).send({
+        ok: false,
+        msg: 'No es posible obtener las inversiones. Inténtelo más tarde.',
+        error: err
+      });
+
+    } else {
+      res.status(200).send({
+        ok: true,
+        inversiones
+      })
+    }
+  })
+
+})
+
+
+
+
 /**
  *Método GET que obtiene las inversiones por id de usuario
  */
@@ -441,6 +470,32 @@ router.get('/api/inversiones/:id', middleware.validarJWT, ( req: Request, res: R
       res.status(200).send({
         ok: true,
         inversiones
+      })
+    }
+  })
+
+})
+
+
+
+/**
+ *Método GET que obtiene todos los archivos
+ */
+router.get('/api/archivos', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const query = ` SELECT * FROM informacion_clientes ORDER BY fech_publica_info DESC `;
+
+  MySQL.ejecutarQuery( query, (err:any, archivos: Object[]) =>{
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } else {
+      return res.status(200).send({
+        ok: true,
+        archivos
       })
     }
   })
@@ -516,6 +571,7 @@ router.get('/api/getarchivo/:extension/:archivo', middleware.validarJWT, ( req: 
 
   FileUploads.returnFile(req, res);
 });
+
 
 
 
@@ -609,6 +665,133 @@ router.put('/api/uploadfile/:idInversion/:id', [middleware.validarJWT, FileUploa
 
 })
 
+
+/**
+ * Método GET para actualizar tickets por usuario
+ */
+router.put('/api/updateTicket', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `
+                UPDATE tickets_clientes
+                SET asunto_tic = '${req.body.asunto}', mensaje_tic = '${req.body.mensaje}'
+                WHERE id_tic = '${req.body.idTicket}' `;
+
+  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } 
+
+    if ( result.affectedRows == 0 ) {
+
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible actualizar el ticket. Inténtelo más tarde.',
+        error: err
+      });
+      
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: 'Ticket actualizado con éxito.',
+        result
+      });
+    }
+
+
+  });
+
+})
+
+
+
+
+/**
+ * Método GET para responder tickets por usuario
+ */
+router.put('/api/answerTicket', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `
+                UPDATE tickets_clientes
+                SET respuesta_tic = '${req.body.respuesta}', estado_tic = 1
+                WHERE id_tic = '${req.body.idTicket}' `;
+
+  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } 
+
+    if ( result.affectedRows == 0 ) {
+
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible responder el ticket. Inténtelo más tarde.',
+        error: err
+      });
+      
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: 'Ticket contestado con éxito.',
+        result
+      });
+    }
+
+  });
+
+})
+
+
+
+
+/**
+ * Método GET para actualizar la inversión
+ */
+router.put('/api/updateInversion', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `
+                UPDATE inversiones_clientes
+                SET nombre_inv = '${req.body.nombreInver}', capital_inv = ${req.body.capital}, moneda_inv = '${req.body.moneda}', tiempo_inv = ${req.body.tiempo}, tasa_ea_inv = '${req.body.tasainteres}', pais_inv = '${req.body.pais}', descripcion_inv = '${req.body.descripcion}', estado_inv = ${req.body.estado}   
+                WHERE id_inv = '${req.body.idInversion}' `;
+
+  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } 
+
+    if ( result.affectedRows == 0 ) {
+
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible actualizar la inversión. Inténtelo más tarde.',
+        error: err
+      });
+      
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: 'Inversión actualizada con éxito.',
+        result
+      });
+    }
+
+  });
+
+})
 
 
 
