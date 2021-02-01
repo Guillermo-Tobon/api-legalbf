@@ -266,6 +266,37 @@ router.post('/api/email', middleware.validarJWT, async(req: Request, res: Respon
 
 
 
+/**
+ * Método POST para insertar anexos 
+ */
+router.post('/api/insertAnexo', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `INSERT INTO anexos_inversiones 
+                 ( id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
+                 VALUES ( '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', CURRENT_TIMESTAMP() ) `;
+
+  MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
+    if (err) {
+      return res.status(400).send({
+        ok: false,
+        msg: 'Problema al crear el anexo.',
+        err: query
+      });
+
+    }
+    return res.status(200).send({
+      ok: true,
+      msg: 'Anexo creado con éxito.',
+      result
+    });
+
+  });
+
+})
+
+
+
+
 
 
 /*******************************************************************************************/
@@ -555,6 +586,39 @@ router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, ( req: Reque
       return res.status(200).send({
         ok: true,
         archivos
+      })
+    }
+  })
+
+})
+
+
+
+
+/**
+ *Método GET que obtiene los anexos por id de inversión
+ */
+router.get('/api/anexos/:idInversion', middleware.validarJWT, ( req: Request, res: Response ) =>{
+
+  const escapeIdInver = MySQL.instance.cnn.escape(req.params.idInversion);
+
+  const query = `
+                SELECT * 
+                FROM anexos_inversiones 
+                WHERE id_inv = ${escapeIdInver} ORDER BY id_anex DESC `;
+
+  MySQL.ejecutarQuery( query, (err:any, anexos: Object[]) =>{
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible obtener los anexos. Inténtelo más tarde.',
+        error: err
+      });
+
+    } else {
+      return res.status(200).send({
+        ok: true,
+        anexos
       })
     }
   })

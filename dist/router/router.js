@@ -213,6 +213,28 @@ router.post('/api/email', middleware.validarJWT, (req, res) => __awaiter(void 0,
     const nodemailer = new config_nodemailer_1.default(req.body);
     yield nodemailer.SendMailer(req, res);
 }));
+/**
+ * Método POST para insertar anexos
+ */
+router.post('/api/insertAnexo', middleware.validarJWT, (req, res) => {
+    const query = `INSERT INTO anexos_inversiones 
+                 ( id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
+                 VALUES ( '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', CURRENT_TIMESTAMP() ) `;
+    mysql_1.default.ejecutarQuery(query, (err, result) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                msg: 'Problema al crear el anexo.',
+                err: query
+            });
+        }
+        return res.status(200).send({
+            ok: true,
+            msg: 'Anexo creado con éxito.',
+            result
+        });
+    });
+});
 /*******************************************************************************************/
 /*********** MÉTODOS GET ************/
 /*******************************************************************************************/
@@ -435,6 +457,31 @@ router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, (req, res) =
             return res.status(200).send({
                 ok: true,
                 archivos
+            });
+        }
+    });
+});
+/**
+ *Método GET que obtiene los anexos por id de inversión
+ */
+router.get('/api/anexos/:idInversion', middleware.validarJWT, (req, res) => {
+    const escapeIdInver = mysql_1.default.instance.cnn.escape(req.params.idInversion);
+    const query = `
+                SELECT * 
+                FROM anexos_inversiones 
+                WHERE id_inv = ${escapeIdInver} ORDER BY id_anex DESC `;
+    mysql_1.default.ejecutarQuery(query, (err, anexos) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                msg: 'No es posible obtener los anexos. Inténtelo más tarde.',
+                error: err
+            });
+        }
+        else {
+            return res.status(200).send({
+                ok: true,
+                anexos
             });
         }
     });
