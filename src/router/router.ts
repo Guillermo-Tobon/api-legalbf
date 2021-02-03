@@ -273,7 +273,7 @@ router.post('/api/insertAnexo', middleware.validarJWT, (req: Request, res: Respo
 
   const query = `INSERT INTO anexos_inversiones 
                  ( id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
-                 VALUES ( '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', CURRENT_TIMESTAMP() ) `;
+                 VALUES ( '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', '${req.body.fecha}' ) `;
 
   MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
     if (err) {
@@ -514,7 +514,10 @@ router.get('/api/inversiones/:id', middleware.validarJWT, ( req: Request, res: R
  */
 router.get('/api/archivos', middleware.validarJWT, ( req: Request, res: Response ) =>{
 
-  const query = ` SELECT * FROM informacion_clientes ORDER BY fech_publica_info DESC `;
+  const query = ` SELECT T0.*, T1.nombres_us
+                  FROM informacion_clientes AS T0 INNER JOIN usuarios AS T1 
+                  ON id_us_info = id_us 
+                  ORDER BY fech_publica_info DESC `;
 
   MySQL.ejecutarQuery( query, (err:any, archivos: Object[]) =>{
     if ( err ) {
