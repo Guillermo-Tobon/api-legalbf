@@ -606,9 +606,10 @@ router.get('/api/anexos/:idInversion', middleware.validarJWT, ( req: Request, re
   const escapeIdInver = MySQL.instance.cnn.escape(req.params.idInversion);
 
   const query = `
-                SELECT * 
-                FROM anexos_inversiones 
-                WHERE id_inv = ${escapeIdInver} ORDER BY id_anex DESC `;
+                  SELECT id_anex, id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, DATE_FORMAT(fechpublica_anex, '%d-%m-%Y') AS fechpublica_anex  
+                  FROM anexos_inversiones 
+                  WHERE id_inv = ${escapeIdInver} ORDER BY id_anex ASC `;
+
 
   MySQL.ejecutarQuery( query, (err:any, anexos: Object[]) =>{
     if ( err ) {

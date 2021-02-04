@@ -470,9 +470,9 @@ router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, (req, res) =
 router.get('/api/anexos/:idInversion', middleware.validarJWT, (req, res) => {
     const escapeIdInver = mysql_1.default.instance.cnn.escape(req.params.idInversion);
     const query = `
-                SELECT * 
-                FROM anexos_inversiones 
-                WHERE id_inv = ${escapeIdInver} ORDER BY id_anex DESC `;
+                  SELECT id_anex, id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, DATE_FORMAT(fechpublica_anex, '%d-%m-%Y') AS fechpublica_anex  
+                  FROM anexos_inversiones 
+                  WHERE id_inv = ${escapeIdInver} ORDER BY id_anex ASC `;
     mysql_1.default.ejecutarQuery(query, (err, anexos) => {
         if (err) {
             return res.status(400).send({
