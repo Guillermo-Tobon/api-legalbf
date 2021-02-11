@@ -271,9 +271,12 @@ router.post('/api/email', middleware.validarJWT, async(req: Request, res: Respon
  */
 router.post('/api/insertAnexo', middleware.validarJWT, (req: Request, res: Response ) =>{
 
+  let idAnexo = uuidv4();
+  idAnexo = idAnexo.split('-');
+
   const query = `INSERT INTO anexos_inversiones 
-                 ( id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
-                 VALUES ( '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', '${req.body.fecha}' ) `;
+                 ( id_anex, id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
+                 VALUES ( '${idAnexo[0]}', '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', '${req.body.fecha}' ) `;
 
   MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
     if (err) {
@@ -287,6 +290,7 @@ router.post('/api/insertAnexo', middleware.validarJWT, (req: Request, res: Respo
     return res.status(200).send({
       ok: true,
       msg: 'Anexo creado con éxito.',
+      idAnexo: idAnexo[0],
       result
     });
 
@@ -606,9 +610,9 @@ router.get('/api/anexos/:idInversion', middleware.validarJWT, ( req: Request, re
   const escapeIdInver = MySQL.instance.cnn.escape(req.params.idInversion);
 
   const query = `
-                  SELECT id_anex, id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, DATE_FORMAT(fechpublica_anex, '%d-%m-%Y') AS fechpublica_anex  
-                  FROM anexos_inversiones 
-                  WHERE id_inv = ${escapeIdInver} ORDER BY id_anex ASC `;
+                SELECT T0.*, DATE_FORMAT(T0.fechpublica_anex, '%d-%m-%Y') AS fechAnexo, T1.nom_archivo_info, T1.tipo_archivo_info
+                FROM anexos_inversiones as T0 INNER JOIN informacion_clientes AS T1 ON T0.id_anex = T1.id_anex
+                WHERE T0.id_inv = ${escapeIdInver} ORDER BY T0.id_anex ASC `;
 
 
   MySQL.ejecutarQuery( query, (err:any, anexos: Object[]) =>{
@@ -724,17 +728,18 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 /**
  * Método POST para cargar archivos del cliente
  */
-router.put('/api/uploadfile/:idInversion/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
+router.put('/api/uploadfile/:idInversion/:idAnexo/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
 
   const escapeId = MySQL.instance.cnn.escape(req.params.id);
   const escapeIdInver = MySQL.instance.cnn.escape(req.params.idInversion);
+  const escapeIdAnex = MySQL.instance.cnn.escape(req.params.idAnexo);
   
   if ( FileUploads.upFile ) {
 
     const query = `
             INSERT INTO informacion_clientes
-            (id_us_info, id_inv, nom_archivo_info, tipo_archivo_info, fech_publica_info )
-            VALUES ( ${escapeId}, ${escapeIdInver}, '${FileUploads.nomDocumento}', '${FileUploads.extenFile}', CURRENT_TIMESTAMP() )`;
+            (id_us_info, id_inv, id_anex, nom_archivo_info, tipo_archivo_info, fech_publica_info )
+            VALUES ( ${escapeId}, ${escapeIdInver}, ${escapeIdAnex}, '${FileUploads.nomDocumento}', '${FileUploads.extenFile}', CURRENT_TIMESTAMP() )`;
         
     MySQL.ejecutarQuery( query, (err:any, result: Object[]) =>{
       if ( err ) {
