@@ -47,8 +47,8 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
                 const password = bcrypt.hashSync(req.body.password, salt);
                 const query = `
         INSERT INTO usuarios 
-        (nombres_us, apellidos_us, email_us, password_us, telefono_us, compania_us, descripcion_us, fecha_reg_us, estado_us, admin_us)
-        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.compania}', '${req.body.descripcion}', CURRENT_TIMESTAMP(), 1, 'N' )`;
+        (nombres_us, apellidos_us, email_us, password_us, telefono_us, pais_us, compania_us, descripcion_us, fecha_reg_us, estado_us, admin_us)
+        VALUES ( '${req.body.nombres}', '${req.body.apellidos}', '${req.body.email}', '${password}', '${req.body.telefono}', '${req.body.pais}', '${req.body.compania}', '${req.body.descripcion}', CURRENT_TIMESTAMP(), 1, 'N' )`;
                 mysql_1.default.ejecutarQuery(query, (err, result) => {
                     if (err) {
                         return res.status(400).send({
@@ -283,6 +283,27 @@ router.get('/api/usuarios', middleware.validarJWT, (req, res) => {
             return res.status(200).send({
                 ok: true,
                 usuarios
+            });
+        }
+    });
+});
+/**
+ *Método GET que obtiene el usuario por id
+ */
+router.get('/api/usuarios/:idUser', middleware.validarJWT, (req, res) => {
+    const escapeId = mysql_1.default.instance.cnn.escape(req.params.idUser);
+    const query = `SELECT * FROM usuarios WHERE id_us = ${escapeId} `;
+    mysql_1.default.ejecutarQuery(query, (err, usuario) => {
+        if (err) {
+            return res.status(400).send({
+                ok: false,
+                error: err
+            });
+        }
+        else {
+            return res.status(200).send({
+                ok: true,
+                usuario
             });
         }
     });
@@ -531,7 +552,7 @@ router.get('/api/usuariosInversion', middleware.validarJWT, (req, res) => {
 router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
     const query = `
                 UPDATE usuarios
-                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
+                SET nombres_us = '${req.body.nombres}', apellidos_us = '${req.body.apellidos}', email_us = '${req.body.email}', telefono_us = '${req.body.telefono}', pais_us = '${req.body.pais}', compania_us = '${req.body.compania}', descripcion_us = '${req.body.descripcion}', estado_us = ${req.body.estado}
                 WHERE id_us = ${req.body.id} `;
     mysql_1.default.ejecutarQuery(query, (err, result) => {
         if (err) {
