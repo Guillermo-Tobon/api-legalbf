@@ -90,8 +90,8 @@ router.post('/api/insertInversion', middleware.validarJWT, (req: Request, res: R
   idInver = idInver.split('-');
 
   const query = `INSERT INTO inversiones_clientes 
-                 ( id_inv, id_us_inv, nombre_inv, capital_inv, moneda_inv, tiempo_inv, tasa_ea_inv, pais_inv, descripcion_inv, estado_inv, fechareg_inv )
-                 VALUES ( '${idInver[0]}', ${req.body.idUs}, '${req.body.nombre}', ${req.body.capital}, '${req.body.moneda}', ${req.body.tiempo}, '${req.body.tasa}', '${req.body.pais}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
+                 ( id_inv, id_us_inv, nombre_inv, capital_extra_inv, moneda_extra_inv, tasa_cambio_inv, capital_cop_inv, tiempo_inv, tasa_ea_inv, interes_extra_inv, interes_cop_inv, renta_extra_inv, renta_cop_inv, pais_inv, descripcion_inv, estado_inv, fechareg_inv )
+                 VALUES ( '${idInver[0]}', ${req.body.idUs}, '${req.body.nombreInver}', ${req.body.capitalExtra}, '${req.body.monedaInver}', '${req.body.tasaCambio}', ${req.body.capitalCop}, ${req.body.tiempo}, '${req.body.tasaEA}', '${req.body.interesExtra}', '${req.body.interesCop}', ${req.body.rentaExtra}, ${req.body.rentaCop}, '${req.body.pais}', '${req.body.descripcion}', ${req.body.estado}, CURRENT_TIMESTAMP() ) `;
 
   MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
     if (err) {
@@ -275,8 +275,8 @@ router.post('/api/insertAnexo', middleware.validarJWT, (req: Request, res: Respo
   idAnexo = idAnexo.split('-');
 
   const query = `INSERT INTO anexos_inversiones 
-                 ( id_anex, id_inv, id_us_inv, nombre_anex, ganacias_anex, tasa_anex, moneda_anex, comentario_anex, fechpublica_anex )
-                 VALUES ( '${idAnexo[0]}', '${req.body.idInversion}', ${req.body.idUser}, '${req.body.nombre}', ${req.body.ganancias}, '${req.body.tasa}', '${req.body.moneda}', '${req.body.comentario}', '${req.body.fecha}' ) `;
+                 ( id_anex, id_inv, id_us_inv, movimiento_anex, capital_extra_anex, capital_cop_anex, interes_extra_anex, interes_cop_anex, capital_interes_extra_anex, capital_interes_cop_anex, moneda_anex,  descripcion_anex, fechpublica_anex )
+                 VALUES ( '${idAnexo[0]}', '${req.body.idInversion}', ${req.body.idUser}, '${req.body.movimiento}', ${req.body.capitalExtra}, ${req.body.capitalCop}, '${req.body.interesExtra}', '${req.body.interesCop}', ${req.body.capiInterExtra}, ${req.body.capiInterCop}, '${req.body.monedaAnex}', '${req.body.comentario}', '${req.body.fecha}' ) `;
 
   MySQL.ejecutarQuery(query, (err: any, result: Object[]) => {
     if (err) {
@@ -711,7 +711,7 @@ router.get('/api/usuariosInversion', middleware.validarJWT, ( req: Request, res:
 /*******************************************************************************************/
 
 /**
- * Método POST para actualizar cliente por id
+ * Método PUT para actualizar cliente por id
  */
 router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Response ) =>{
   
@@ -754,7 +754,7 @@ router.put('/api/updateCliente', middleware.validarJWT, (req: Request, res: Resp
 
 
 /**
- * Método POST para cargar archivos del cliente
+ * Método PUT para cargar archivos del cliente
  */
 router.put('/api/uploadfile/:idInversion/:idAnexo/:id', [middleware.validarJWT, FileUploads.uploadsFile],  async(req: Request, res: Response) =>{
 
@@ -797,7 +797,7 @@ router.put('/api/uploadfile/:idInversion/:idAnexo/:id', [middleware.validarJWT, 
 
 
 /**
- * Método GET para actualizar tickets por usuario
+ * Método PUT para actualizar tickets por usuario
  */
 router.put('/api/updateTicket', middleware.validarJWT, (req: Request, res: Response ) =>{
 
@@ -841,7 +841,7 @@ router.put('/api/updateTicket', middleware.validarJWT, (req: Request, res: Respo
 
 
 /**
- * Método GET para responder tickets por usuario
+ * Método PUT para responder tickets por usuario
  */
 router.put('/api/answerTicket', middleware.validarJWT, (req: Request, res: Response ) =>{
 
@@ -884,13 +884,13 @@ router.put('/api/answerTicket', middleware.validarJWT, (req: Request, res: Respo
 
 
 /**
- * Método GET para actualizar la inversión
+ * Método PUT para actualizar la inversión
  */
 router.put('/api/updateInversion', middleware.validarJWT, (req: Request, res: Response ) =>{
 
   const query = `
                 UPDATE inversiones_clientes
-                SET nombre_inv = '${req.body.nombreInver}', capital_inv = ${req.body.capital}, moneda_inv = '${req.body.moneda}', tiempo_inv = ${req.body.tiempo}, tasa_ea_inv = '${req.body.tasainteres}', pais_inv = '${req.body.pais}', descripcion_inv = '${req.body.descripcion}', estado_inv = ${req.body.estado}   
+                SET nombre_inv = '${req.body.nombreInver}', capital_extra_inv = ${req.body.capitalExtra}, moneda_extra_inv = '${req.body.monedaInver}', tasa_cambio_inv = '${req.body.tasaCambio}', capital_cop_inv = ${req.body.capitalCop}, tiempo_inv = ${req.body.tiempo}, tasa_ea_inv = '${req.body.tasaEA}', interes_extra_inv = '${req.body.interesExtra}', interes_cop_inv = '${req.body.interesCop}', renta_extra_inv = ${req.body.rentaExtra}, renta_cop_inv = ${req.body.rentaCop}, pais_inv = '${req.body.pais}', descripcion_inv = '${req.body.descripcion}', estado_inv = ${req.body.estado}              
                 WHERE id_inv = '${req.body.idInversion}' `;
 
   MySQL.ejecutarQuery( query, (err:any, result:any) =>{
@@ -920,6 +920,48 @@ router.put('/api/updateInversion', middleware.validarJWT, (req: Request, res: Re
     }
 
   });
+
+})
+
+
+
+/**
+ * Método PUT para actualizar anexos
+ */
+router.put('/api/updateAnexo', middleware.validarJWT, (req: Request, res: Response ) =>{
+
+  const query = `
+                UPDATE anexos_inversiones
+                SET movimiento_anex = '${req.body.movimiento}', capital_extra_anex = ${req.body.capitalExtra}, capital_cop_anex = ${req.body.capitalCop}, interes_extra_anex = '${req.body.interesExtra}', interes_cop_anex = '${req.body.interesCop}', capital_interes_extra_anex = ${req.body.capiInterExtra}, capital_interes_cop_anex = ${req.body.capiInterCop}, descripcion_anex = '${req.body.comentario}'
+                WHERE id_inv = '${req.body.idInversion}' `;
+
+  MySQL.ejecutarQuery( query, (err:any, result:any) =>{
+
+    if ( err ) {
+      return res.status(400).send({
+        ok: false,
+        error: err
+      });
+
+    } 
+
+    if ( result.affectedRows == 0 ) {
+
+      return res.status(400).send({
+        ok: false,
+        msg: 'No es posible actualizar el anexo. Inténtelo más tarde.',
+        error: err
+      });
+      
+    } else {
+      return res.status(200).send({
+        ok: true,
+        msg: 'Anexo actualizado con éxito.',
+        result
+      });
+    }
+
+  }); 
 
 })
 
