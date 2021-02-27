@@ -37,7 +37,7 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
         if (data) {
             return res.status(400).send({
                 ok: false,
-                msg: 'El usuario con este correo electrónico ya está registrado'
+                msg: 'The user with this email is already registered'
             });
         }
         if (err) {
@@ -59,7 +59,7 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
                     }
                     res.status(200).send({
                         ok: true,
-                        msg: 'Usuario registrado con éxito.',
+                        msg: 'Registered user successfully.',
                         result
                     });
                 });
@@ -67,7 +67,7 @@ router.post('/api/insertUsuario', (req, res) => __awaiter(void 0, void 0, void 0
             else {
                 return res.status(400).send({
                     ok: false,
-                    msg: 'Problema al consultar el usuario.',
+                    msg: 'Problem when querying the user.',
                     err
                 });
             }
@@ -87,13 +87,13 @@ router.post('/api/insertInversion', middleware.validarJWT, (req, res) => {
         if (err) {
             return res.status(400).send({
                 ok: false,
-                msg: 'Problema al crear la inversión.',
+                msg: 'Problem creating the project.',
                 err: query
             });
         }
         res.status(200).send({
             ok: true,
-            msg: 'Inversión creada con éxito.',
+            msg: 'Successfully created project.',
             idInver: idInver[0],
             result
         });
@@ -112,14 +112,14 @@ router.post('/api/loginUser', (req, res) => {
                     return res.status(400).send({
                         ok: false,
                         err,
-                        msg: 'E-mail y/o password incorrectos.'
+                        msg: 'Incorrect email and/or password.'
                     });
                 }
                 else {
                     return res.status(400).send({
                         ok: false,
                         err,
-                        msg: 'Error en la consulta de usuario. Intente más tarde.'
+                        msg: 'User query failed. Try again later.'
                     });
                 }
             }
@@ -128,15 +128,15 @@ router.post('/api/loginUser', (req, res) => {
                 if (!passUser) {
                     return res.status(400).send({
                         ok: false,
-                        err: 'Password incorrecto.',
-                        msg: 'E-mail y/o password son incorrectos.'
+                        err: 'Password failed.',
+                        msg: 'Incorrect email and/or password.'
                     });
                 }
                 else if (result[0].estado_us === 0) {
                     return res.status(400).send({
                         ok: false,
-                        err: 'Acceso denegado.',
-                        msg: 'Su cuenta esta bloqueada. comuníquese con el administrador.'
+                        err: 'Access denied.',
+                        msg: 'Your account is locked. contact the administrator.'
                     });
                 }
                 else {
@@ -145,7 +145,7 @@ router.post('/api/loginUser', (req, res) => {
                     return res.status(200).send({
                         ok: true,
                         err,
-                        msg: 'Login correcto!',
+                        msg: 'Login correct!',
                         token
                     });
                 }
@@ -155,7 +155,7 @@ router.post('/api/loginUser', (req, res) => {
     catch (error) {
         return res.status(500).send({
             ok: false,
-            msg: 'Error inesperado en login... Revisar logs',
+            msg: 'Unexpected login error ... Check logs',
             error
         });
     }
@@ -169,7 +169,7 @@ router.post('/api/crearticket', middleware.validarJWT, (req, res) => __awaiter(v
         if (data) {
             return res.status(400).send({
                 ok: false,
-                msg: `Tiene un ticket ( ${data[0].id_tic} ) pendiente de contestar. comuníquese con el administrador.`,
+                msg: `Have a ticket ( ${data[0].id_tic} ) pending answer. contact the administrator.`,
                 data
             });
         }
@@ -185,13 +185,13 @@ router.post('/api/crearticket', middleware.validarJWT, (req, res) => __awaiter(v
                     if (err) {
                         return res.status(400).send({
                             ok: false,
-                            msg: 'Problema al crear el ticket.',
+                            msg: 'Problem creating ticket.',
                             err: query
                         });
                     }
                     res.status(200).send({
                         ok: true,
-                        msg: 'Ticket creado con éxito.',
+                        msg: 'Ticket created successfully.',
                         idticket: idTicket[0]
                     });
                 });
@@ -199,7 +199,7 @@ router.post('/api/crearticket', middleware.validarJWT, (req, res) => __awaiter(v
             else {
                 return res.status(400).send({
                     ok: false,
-                    msg: 'Problema al consultar el ticket.',
+                    msg: 'Problem when consulting the ticket.',
                     err
                 });
             }
@@ -226,13 +226,13 @@ router.post('/api/insertAnexo', middleware.validarJWT, (req, res) => {
         if (err) {
             return res.status(400).send({
                 ok: false,
-                msg: 'Problema al crear el anexo.',
+                msg: 'Problem creating annex.',
                 err: query
             });
         }
         return res.status(200).send({
             ok: true,
-            msg: 'Anexo creado con éxito.',
+            msg: 'Annex created successfully.',
             idAnexo: idAnexo[0],
             result
         });
@@ -337,7 +337,7 @@ router.get('/api/alltickets', middleware.validarJWT, (req, res) => {
         if (err) {
             res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener los tickets. Inténtelo más tarde.',
+                msg: 'It is not possible to obtain the tickets. Please try again later.',
                 error: err
             });
         }
@@ -362,7 +362,7 @@ router.get('/api/tickets/:id', middleware.validarJWT, (req, res) => {
         if (err) {
             res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener los tickets. Inténtelo más tarde.',
+                msg: 'It is not possible to obtain the tickets. Please try again later.',
                 error: err
             });
         }
@@ -383,7 +383,7 @@ router.get('/api/inversiones', middleware.validarJWT, (req, res) => {
         if (err) {
             res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener las inversiones. Inténtelo más tarde.',
+                msg: 'Projects cannot be obtained. Please try again later.',
                 error: err
             });
         }
@@ -408,7 +408,7 @@ router.get('/api/inversiones/:id', middleware.validarJWT, (req, res) => {
         if (err) {
             res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener las inversiones. Inténtelo más tarde.',
+                msg: 'Projects cannot be obtained. Please try again later.',
                 error: err
             });
         }
@@ -494,14 +494,14 @@ router.get('/api/archivos/:idInversion/:id', middleware.validarJWT, (req, res) =
 router.get('/api/anexos/:idInversion', middleware.validarJWT, (req, res) => {
     const escapeIdInver = mysql_1.default.instance.cnn.escape(req.params.idInversion);
     const query = `
-                SELECT T0.*, DATE_FORMAT(T0.fechpublica_anex, '%d-%m-%Y') AS fechAnexo, T1.nom_archivo_info, T1.tipo_archivo_info
+                SELECT T0.*, DATE_FORMAT(T0.fechpublica_anex, '%d-%m-%Y') AS fechAnexo, T1.id_info, T1.nom_archivo_info, T1.tipo_archivo_info
                 FROM anexos_inversiones as T0 INNER JOIN informacion_clientes AS T1 ON T0.id_anex = T1.id_anex
                 WHERE T0.id_inv = ${escapeIdInver} ORDER BY T0.id_anex ASC `;
     mysql_1.default.ejecutarQuery(query, (err, anexos) => {
         if (err) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener los anexos. Inténtelo más tarde.',
+                msg: 'Unable to get annexes. Please try again later.',
                 error: err
             });
         }
@@ -531,7 +531,7 @@ router.get('/api/usuariosInversion', middleware.validarJWT, (req, res) => {
         if (err) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible obtener los anexos. Inténtelo más tarde.',
+                msg: 'Unable to get annexes. Please try again later.',
                 error: err
             });
         }
@@ -564,14 +564,14 @@ router.put('/api/updateCliente', middleware.validarJWT, (req, res) => {
         if (result.affectedRows == 0) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible actualizar el cliente. Verifica los datos.',
+                msg: 'The client cannot be updated. Check the data.',
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: 'Cliente actualizado con éxito.',
+                msg: 'Successfully updated client.',
                 result
             });
         }
@@ -593,13 +593,13 @@ router.put('/api/uploadfile/:idInversion/:idAnexo/:id', [middleware.validarJWT, 
             if (err) {
                 return res.status(400).send({
                     ok: false,
-                    msg: 'Problema al crear la información.',
+                    msg: 'Problem creating information.',
                     err
                 });
             }
             return res.status(200).send({
                 ok: true,
-                msg: 'Información registrada con éxito.',
+                msg: 'Information registered successfully.',
                 result
             });
         });
@@ -623,14 +623,14 @@ router.put('/api/updateTicket', middleware.validarJWT, (req, res) => {
         if (result.affectedRows == 0) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible actualizar el ticket. Inténtelo más tarde.',
+                msg: 'It is not possible to update the ticket. Please try again later.',
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: 'Ticket actualizado con éxito.',
+                msg: 'Ticket updated successfully.',
                 result
             });
         }
@@ -654,14 +654,14 @@ router.put('/api/answerTicket', middleware.validarJWT, (req, res) => {
         if (result.affectedRows == 0) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible responder el ticket. Inténtelo más tarde.',
+                msg: 'Unable to reply to the ticket. Please try again later.',
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: 'Ticket contestado con éxito.',
+                msg: 'Ticket answered successfully.',
                 result
             });
         }
@@ -685,14 +685,14 @@ router.put('/api/updateInversion', middleware.validarJWT, (req, res) => {
         if (result.affectedRows == 0) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible actualizar la inversión. Inténtelo más tarde.',
+                msg: 'Unable to update project. Please try again later.',
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: 'Inversión actualizada con éxito.',
+                msg: 'Successfully updated project.',
                 result
             });
         }
@@ -716,14 +716,14 @@ router.put('/api/updateAnexo', middleware.validarJWT, (req, res) => {
         if (result.affectedRows == 0) {
             return res.status(400).send({
                 ok: false,
-                msg: 'No es posible actualizar el anexo. Inténtelo más tarde.',
+                msg: 'It is not possible to update the annex. Please try again later.',
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: 'Anexo actualizado con éxito.',
+                msg: 'Annex successfully updated.',
                 result
             });
         }
@@ -742,14 +742,14 @@ router.delete('/api/deleteticket/:ticket', middleware.validarJWT, (req, res) => 
         if (err) {
             res.status(400).send({
                 ok: false,
-                msg: `No es posible eliminar el ticket ${escapeTick}. Inténtelo más tarde.`,
+                msg: `It is not possible to delete the ticket ${escapeTick}. Please try again later.`,
                 error: err
             });
         }
         else {
             res.status(200).send({
                 ok: true,
-                msg: `El ticket ${escapeTick} fue eliminado con éxito.`,
+                msg: `The ticket ${escapeTick} was successfully removed.`,
                 result
             });
         }
@@ -766,14 +766,14 @@ router.delete('/api/deletearchivo/:extension/:archivo/:id', [middleware.validarJ
         if (err) {
             return res.status(400).send({
                 ok: false,
-                msg: `No es posible eliminar el archivo. Inténtelo más tarde.`,
+                msg: `The file cannot be deleted. Please try again later.`,
                 error: err
             });
         }
         else {
             return res.status(200).send({
                 ok: true,
-                msg: `El archivo fue eliminado con éxito.`,
+                msg: `The file was deleted successfully.`,
                 result
             });
         }

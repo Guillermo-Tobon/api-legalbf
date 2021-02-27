@@ -126,7 +126,7 @@ export default class FileUploads {
     } catch (err) {
       return res.status(400).send({
         ok: false,
-        msg: `No es posible eliminar el archivo. Inténtelo más tarde.`,
+        msg: `The file cannot be deleted. Please try again later.`,
         error: err
       });
       
