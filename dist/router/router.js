@@ -524,7 +524,7 @@ router.get('/api/getarchivo/:extension/:archivo', middleware.validarJWT, (req, r
  */
 router.get('/api/usuariosInversion', middleware.validarJWT, (req, res) => {
     const query = `
-                SELECT T0.id_us, T0.nombres_us, T0.compania_us, T0.email_us, T1.nombre_inv, T1.capital_inv, T1.moneda_inv, T1.tiempo_inv, T1.tasa_ea_inv  
+                SELECT T0.*, T1.*  
                 FROM usuarios AS T0 INNER JOIN  inversiones_clientes AS T1 ON T0.id_us = T1.id_us_inv
                 WHERE T0.estado_us = 1 ORDER BY T0.id_us ASC`;
     mysql_1.default.ejecutarQuery(query, (err, datos) => {
