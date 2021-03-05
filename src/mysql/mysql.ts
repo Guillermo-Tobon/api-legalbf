@@ -11,10 +11,10 @@ export default class MySQL{
     console.log('Clase inicializada!');
 
     this.cnn = mysql.createConnection({
-      host: '162.251.80.225',
-      user: 'legalkqk_uslegal',
-      password: 's&oA8UC[g{RH',
-      database: 'legalkqk_dblegal'
+      host: '3.12.205.174',
+      user: 'clientsl_USERclientslegalbf',
+      password: 'KFVwvVdq}m~K',
+      database: 'clientsl_BDclientslegalbf'
     });
 
     this.conectarDB();
