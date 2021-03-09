@@ -5,34 +5,34 @@ class NodeMailer {
     constructor(data) {
         this.SendMailer = (req, res) => {
             const transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
+                host: 'mail.clientslegalbf.com',
                 port: 465,
                 secure: true,
                 auth: {
-                    user: 'desarrollomemo@gmail.com',
-                    pass: 'abawmliitfhovslp'
+                    user: 'clientslegalbf@clientslegalbf.com',
+                    pass: '5kDP@(J?Bf#a'
                 }
             });
             const mailOptions = {
-                from: '"LegalBF" <info@legalbf.com>',
+                from: '"Clients LegalBF" <clientslegalbf@clientslegalbf.com>',
                 to: `${this.dataInfo.email}`,
                 subject: `${this.dataInfo.asunto} ✔`,
                 html: `<b>${this.dataInfo.asunto}</b>
-                 <p>Señor(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
+                 <p>Sr(a) ${this.dataInfo.nombres} ${this.dataInfo.apellidos}</p>
                  ${this.dataInfo.descripcion}`,
             };
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
                     return res.status(400).send({
                         ok: false,
-                        msg: 'No se pudo enviar el correo electrónico.',
+                        msg: 'Email could not be sent.',
                         error: err.message
                     });
                 }
                 else {
                     return res.status(200).send({
                         ok: true,
-                        msg: 'Correo enviado'
+                        msg: 'Send email'
                     });
                 }
             });
